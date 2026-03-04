@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const DB = {};
 
@@ -16,7 +16,11 @@ function formatPhone(v) {
 const SUGGESTED = ["🔧","🩺","✂️","⚖️","🦷","🏠","💊","🐾","🔌","🚿","📦","🍕","🏦","🌿","🧹","🚗","📸","👟","💈","🎓","🏋️","🔑","🖥️","🧰"];
 
 function Toast({ msg, onClose }) {
-  useEffect(() => { const t = setTimeout(onClose, 2500); return () => clearTimeout(t); }, []);
+  const handleClose = useCallback(onClose, [onClose]);
+  useEffect(() => {
+    const t = setTimeout(handleClose, 2500);
+    return () => clearTimeout(t);
+  }, [handleClose]);
   return (
     <div style={{
       position:"fixed", bottom:32, left:"50%", transform:"translateX(-50%)",
@@ -70,12 +74,8 @@ function EmojiPicker({ value, onChange }) {
   function pick(e) { onChange(e); setOpen(false); }
 
   function handleCustom(e) {
-    // grab only emoji characters from input
     const val = e.target.value;
-    const match = [...val].filter(c => {
-      const code = c.codePointAt(0);
-      return code > 255;
-    });
+    const match = [...val].filter(c => c.codePointAt(0) > 255);
     if (match.length > 0) { onChange(match[0]); setOpen(false); setCustom(""); }
     else setCustom(val);
   }
@@ -98,7 +98,6 @@ function EmojiPicker({ value, onChange }) {
           marginTop:8, background:"#fff8f0", borderRadius:16, padding:"16px 14px",
           border:"1.5px solid #e8d4b4", boxShadow:"0 4px 20px rgba(0,0,0,.1)"
         }}>
-          {/* Sugestões rápidas */}
           <p style={{fontSize:10, color:"#9a6c3a", marginBottom:8, textTransform:"uppercase", letterSpacing:".5px"}}>Sugestões</p>
           <div style={{display:"flex", flexWrap:"wrap", gap:6, marginBottom:14}}>
             {SUGGESTED.map(e => (
@@ -111,7 +110,6 @@ function EmojiPicker({ value, onChange }) {
             ))}
           </div>
 
-          {/* Input nativo */}
           <p style={{fontSize:10, color:"#9a6c3a", marginBottom:6, textTransform:"uppercase", letterSpacing:".5px"}}>
             Ou use o emoji do seu celular 📱
           </p>
@@ -139,9 +137,8 @@ function EmojiPicker({ value, onChange }) {
 
 const fieldStyle = {
   width:"100%", padding:"14px 16px", borderRadius:14, border:"1.5px solid #e0c9a8",
-  background:"rgba(255,255,255,.9)", fontFamily:"Georgia,serif", fontSize:16, color:"#1e1006",
+  background:"rgba(255,255,255,.9)", fontFamily:"Georgia,serif", fontSize:"16px", color:"#1e1006",
   marginBottom:11, outline:"none", boxSizing:"border-box", WebkitAppearance:"none",
-  fontSize:"16px" // prevents zoom on iOS
 };
 
 function AddModal({ onSave, onClose }) {
@@ -163,21 +160,16 @@ function AddModal({ onSave, onClose }) {
         padding:"24px 18px 40px", width:"100%", maxWidth:480,
         maxHeight:"92vh", overflowY:"auto", overscrollBehavior:"contain"
       }}>
-        {/* Handle */}
         <div style={{width:36, height:4, background:"#ddd", borderRadius:4, margin:"0 auto 20px"}}/>
-
         <h2 style={{fontFamily:"Georgia,serif", fontSize:22, color:"#1e1006", marginBottom:18, fontWeight:700}}>
           Novo contato da família
         </h2>
-
         <EmojiPicker value={emoji} onChange={setEmoji} />
-
         <input value={name} onChange={e=>setName(e.target.value)} placeholder="Nome *" style={fieldStyle}/>
         <input value={label} onChange={e=>setLabel(e.target.value)} placeholder="Tipo (ex: Mecânico, Médico...)" style={fieldStyle}/>
         <input value={est} onChange={e=>setEst(e.target.value)} placeholder="Estabelecimento (opcional)" style={fieldStyle}/>
         <input value={phone} onChange={e=>setPhone(formatPhone(e.target.value))}
           placeholder="Telefone *" style={fieldStyle} inputMode="numeric"/>
-
         <button onClick={()=>valid&&onSave({name:name.trim(),label:label.trim(),establishment:est.trim(),phone,emoji})} style={{
           width:"100%", padding:"16px", borderRadius:16, border:"none",
           background:valid?"linear-gradient(135deg,#b85e22,#8f4214)":"#e0d0bc",
@@ -205,8 +197,6 @@ export default function App() {
 
   const bg = "radial-gradient(ellipse at 25% 0%,#f7e4c4 0%,#fdf7ee 50%,#ede4d4 100%)";
 
-  function T(msg) { setToast(msg); }
-
   function createFamily() {
     if(!newName.trim()||!newPass.trim()) return;
     const code = generateCode();
@@ -214,7 +204,7 @@ export default function App() {
     DB[code] = f;
     setFamily({...f});
     setScreen("family");
-    T(`Família criada! Código: ${code}`);
+    setToast(`Família criada! Código: ${code}`);
   }
 
   function joinFamily() {
@@ -224,7 +214,7 @@ export default function App() {
     if(f.password !== joinPass.trim()) { setErr("Senha incorreta 🔒"); return; }
     setFamily({...f});
     setScreen("family");
-    T(`Bem-vindo à família ${f.name}! 🏠`);
+    setToast(`Bem-vindo à família ${f.name}! 🏠`);
   }
 
   function addContact(c) {
@@ -232,14 +222,14 @@ export default function App() {
     DB[family.code] = updated;
     setFamily(updated);
     setShowAdd(false);
-    T("Contato adicionado! ✅");
+    setToast("Contato adicionado! ✅");
   }
 
   function deleteContact(id) {
     const updated = {...family, contacts:family.contacts.filter(c=>c.id!==id)};
     DB[family.code] = updated;
     setFamily(updated);
-    T("Contato removido");
+    setToast("Contato removido");
   }
 
   function reset() {
@@ -259,7 +249,6 @@ export default function App() {
 
       <div style={{minHeight:"100vh", background:bg, fontFamily:"system-ui,sans-serif", maxWidth:480, margin:"0 auto", position:"relative"}}>
 
-        {/* ── HOME ── */}
         {screen==="home" && (
           <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:"32px 24px"}}>
             <div style={{textAlign:"center", marginBottom:44}}>
@@ -271,9 +260,7 @@ export default function App() {
                 A agenda de contatos da sua família, preservada de geração em geração.
               </p>
             </div>
-
             <div style={{width:44, height:2, background:"linear-gradient(90deg,transparent,#b85e22,transparent)", marginBottom:40}}/>
-
             <div style={{width:"100%", maxWidth:320, display:"flex", flexDirection:"column", gap:13}}>
               <button onClick={()=>setScreen("create")} style={{
                 padding:"18px 24px", borderRadius:18, border:"none",
@@ -282,7 +269,6 @@ export default function App() {
                 cursor:"pointer", boxShadow:"0 8px 24px rgba(184,94,34,.45)",
                 WebkitTapHighlightColor:"transparent", letterSpacing:".2px"
               }}>✨ Criar minha família</button>
-
               <button onClick={()=>{setScreen("join");setErr("");}} style={{
                 padding:"18px 24px", borderRadius:18, border:"2px solid #ddc9a4",
                 background:"rgba(255,255,255,.75)", color:"#5a3818",
@@ -290,26 +276,20 @@ export default function App() {
                 cursor:"pointer", WebkitTapHighlightColor:"transparent"
               }}>🔗 Entrar em uma família</button>
             </div>
-
             <p style={{marginTop:32, fontSize:12, color:"#b09070", textAlign:"center", lineHeight:1.7, maxWidth:230}}>
               Nunca mais vai no mecânico errado 😄<br/>Compartilhe o código com a família.
             </p>
           </div>
         )}
 
-        {/* ── CREATE ── */}
         {screen==="create" && (
           <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:"32px 24px"}}>
             <div style={{width:"100%", maxWidth:360}}>
-              <button onClick={()=>setScreen("home")} style={{background:"none", border:"none", color:"#7a5228", cursor:"pointer", fontSize:14, marginBottom:28, padding:0, display:"flex", alignItems:"center", gap:6}}>
-                ← Voltar
-              </button>
+              <button onClick={()=>setScreen("home")} style={{background:"none", border:"none", color:"#7a5228", cursor:"pointer", fontSize:14, marginBottom:28, padding:0}}>← Voltar</button>
               <h2 style={{fontFamily:"'Playfair Display',Georgia,serif", fontSize:34, color:"#1e1006", marginBottom:8, fontWeight:800}}>Criar família</h2>
               <p style={{color:"#7a5228", fontSize:14, marginBottom:28, lineHeight:1.6}}>Você vai receber um código para convidar os membros da família.</p>
-              <input value={newName} onChange={e=>setNewName(e.target.value)}
-                placeholder="Nome da família (ex: Família Silva)" style={fieldStyle}/>
-              <input value={newPass} onChange={e=>setNewPass(e.target.value)}
-                type="password" placeholder="Crie uma senha" style={fieldStyle}/>
+              <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder="Nome da família (ex: Família Silva)" style={fieldStyle}/>
+              <input value={newPass} onChange={e=>setNewPass(e.target.value)} type="password" placeholder="Crie uma senha" style={fieldStyle}/>
               <button onClick={createFamily} style={{
                 width:"100%", padding:"17px", borderRadius:16, border:"none", marginTop:6,
                 background:newName&&newPass?"linear-gradient(135deg,#b85e22,#8f4214)":"#e0d0bc",
@@ -323,20 +303,15 @@ export default function App() {
           </div>
         )}
 
-        {/* ── JOIN ── */}
         {screen==="join" && (
           <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:"32px 24px"}}>
             <div style={{width:"100%", maxWidth:360}}>
-              <button onClick={()=>setScreen("home")} style={{background:"none", border:"none", color:"#7a5228", cursor:"pointer", fontSize:14, marginBottom:28, padding:0}}>
-                ← Voltar
-              </button>
+              <button onClick={()=>setScreen("home")} style={{background:"none", border:"none", color:"#7a5228", cursor:"pointer", fontSize:14, marginBottom:28, padding:0}}>← Voltar</button>
               <h2 style={{fontFamily:"'Playfair Display',Georgia,serif", fontSize:34, color:"#1e1006", marginBottom:8, fontWeight:800}}>Entrar na família</h2>
               <p style={{color:"#7a5228", fontSize:14, marginBottom:28, lineHeight:1.6}}>Peça o código de 6 letras para um membro da família.</p>
-              <input value={joinCode} onChange={e=>{setJoinCode(e.target.value.toUpperCase());setErr("");}}
-                maxLength={6} placeholder="A B C 1 2 3"
-                style={{...fieldStyle, fontSize:28, textAlign:"center", letterSpacing:"10px", fontWeight:800, fontFamily:"Georgia,serif"}}/>
-              <input value={joinPass} onChange={e=>{setJoinPass(e.target.value);setErr("");}}
-                type="password" placeholder="Senha da família" style={fieldStyle}/>
+              <input value={joinCode} onChange={e=>{setJoinCode(e.target.value.toUpperCase());setErr("");}} maxLength={6}
+                placeholder="A B C 1 2 3" style={{...fieldStyle, fontSize:"28px", textAlign:"center", letterSpacing:"10px", fontWeight:800, fontFamily:"Georgia,serif"}}/>
+              <input value={joinPass} onChange={e=>{setJoinPass(e.target.value);setErr("");}} type="password" placeholder="Senha da família" style={fieldStyle}/>
               {err && <p style={{color:"#c0392b", fontSize:13, marginBottom:10, textAlign:"center"}}>{err}</p>}
               <button onClick={joinFamily} style={{
                 width:"100%", padding:"17px", borderRadius:16, border:"none",
@@ -350,10 +325,8 @@ export default function App() {
           </div>
         )}
 
-        {/* ── FAMILY ── */}
         {screen==="family" && family && (
           <div style={{minHeight:"100vh"}}>
-            {/* Header */}
             <div style={{
               padding:"20px 18px 14px",
               background:"rgba(253,247,238,.95)", backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)",
@@ -368,7 +341,7 @@ export default function App() {
                 </div>
                 <div style={{display:"flex", alignItems:"center", gap:6, marginTop:3}}>
                   <span style={{fontSize:10, color:"#9a6c3a"}}>código:</span>
-                  <span onClick={()=>T(`Código: ${family.code}`)} style={{
+                  <span onClick={()=>setToast(`Código: ${family.code}`)} style={{
                     fontSize:11, fontWeight:800, letterSpacing:"4px", color:"#b85e22",
                     background:"rgba(184,94,34,.1)", padding:"3px 10px", borderRadius:20, cursor:"pointer"
                   }}>{family.code} 📋</span>
@@ -381,7 +354,6 @@ export default function App() {
               }}>Sair</button>
             </div>
 
-            {/* Grid */}
             <div style={{padding:"18px 14px 110px"}}>
               {family.contacts.length===0 ? (
                 <div style={{textAlign:"center", padding:"64px 0"}}>
@@ -400,7 +372,6 @@ export default function App() {
               )}
             </div>
 
-            {/* FAB */}
             <button onClick={()=>setShowAdd(true)} style={{
               position:"fixed", bottom:24, right:20, zIndex:500,
               background:"linear-gradient(135deg,#b85e22,#8f4214)", color:"#fff",

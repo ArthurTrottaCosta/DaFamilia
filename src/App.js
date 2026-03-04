@@ -318,7 +318,7 @@ export default function App() {
     const saved = localStorage.getItem("df_session");
     if (saved) {
       try {
-        const { familyCode, familyName, familyPassword } = JSON.parse(saved);
+        const { familyCode } = JSON.parse(saved);
         if (familyCode) {
           setLoading(true);
           supabase.from("families").select("*").eq("code", familyCode).single()

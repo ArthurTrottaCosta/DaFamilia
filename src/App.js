@@ -478,6 +478,7 @@ export default function App() {
       nudgeInterval.current = setInterval(checkNudges, 15000);
     }
     return () => clearInterval(nudgeInterval.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, currentMember, family, checkNudges]);
 
   async function dismissNudge(id) {

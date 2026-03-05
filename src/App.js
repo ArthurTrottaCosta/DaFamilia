@@ -6,7 +6,6 @@ const supabase = createClient(
   "sb_publishable_px91bnDnthtn-2R6-WuTVQ_ecukGXuY"
 );
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -36,7 +35,6 @@ const fS = {
   marginBottom: 11, outline: "none", boxSizing: "border-box", WebkitAppearance: "none",
 };
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ msg, onClose }) {
   const cb = useCallback(onClose, [onClose]);
   useEffect(() => { const t = setTimeout(cb, 3000); return () => clearTimeout(t); }, [cb]);
@@ -45,7 +43,6 @@ function Toast({ msg, onClose }) {
   );
 }
 
-// ── Loader ────────────────────────────────────────────────────────────────────
 function Loader({ text }) {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(253,247,238,.95)", zIndex: 9998, gap: 14 }}>
@@ -55,22 +52,14 @@ function Loader({ text }) {
   );
 }
 
-// ── Nudge Banner ──────────────────────────────────────────────────────────────
-function NudgeBanner({ nudges, onDismiss, onAction }) {
+function NudgeBanner({ nudges, onDismiss }) {
   const n = nudges[0];
   if (!n) return null;
   return (
-    <div style={{
-      position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
-      width: "100%", maxWidth: 480, zIndex: 2000,
-      background: "linear-gradient(135deg,#b85e22,#8f4214)",
-      padding: "16px 18px 18px", boxShadow: "0 8px 32px rgba(0,0,0,.3)"
-    }}>
+    <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, zIndex: 2000, background: "linear-gradient(135deg,#b85e22,#8f4214)", padding: "16px 18px 18px", boxShadow: "0 8px 32px rgba(0,0,0,.3)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div>
-          <p style={{ color: "rgba(255,255,255,.8)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".5px" }}>
-            👋 {n.from_member} quer que você:
-          </p>
+          <p style={{ color: "rgba(255,255,255,.8)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".5px" }}>👋 {n.from_member} quer que você:</p>
           <p style={{ color: "#fff", fontFamily: "Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 4 }}>
             {n.action === "call" ? "📞 Ligue" : "💬 Mande mensagem"} para {n.contact_emoji} {n.contact_name}
           </p>
@@ -79,26 +68,17 @@ function NudgeBanner({ nudges, onDismiss, onAction }) {
       </div>
       <div style={{ display: "flex", gap: 10 }}>
         {n.action === "call" ? (
-          <a href={`tel:${rawPhone(n.contact_phone)}`} onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>
-            📞 Ligar agora
-          </a>
+          <a href={`tel:${rawPhone(n.contact_phone)}`} onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>📞 Ligar agora</a>
         ) : (
-          <a href={`https://wa.me/55${rawPhone(n.contact_phone)}`} target="_blank" rel="noreferrer" onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>
-            💬 WhatsApp agora
-          </a>
+          <a href={`https://wa.me/55${rawPhone(n.contact_phone)}`} target="_blank" rel="noreferrer" onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>💬 WhatsApp agora</a>
         )}
-        <button onClick={() => onDismiss(n.id)} style={{ padding: "11px 16px", borderRadius: 12, background: "transparent", color: "rgba(255,255,255,.7)", border: "1.5px solid rgba(255,255,255,.2)", fontSize: 13, cursor: "pointer" }}>
-          Depois
-        </button>
+        <button onClick={() => onDismiss(n.id)} style={{ padding: "11px 16px", borderRadius: 12, background: "transparent", color: "rgba(255,255,255,.7)", border: "1.5px solid rgba(255,255,255,.2)", fontSize: 13, cursor: "pointer" }}>Depois</button>
       </div>
-      {nudges.length > 1 && (
-        <p style={{ color: "rgba(255,255,255,.6)", fontSize: 11, marginTop: 8, textAlign: "center" }}>+{nudges.length - 1} cutucada{nudges.length - 1 > 1 ? "s" : ""} pendente{nudges.length - 1 > 1 ? "s" : ""}</p>
-      )}
+      {nudges.length > 1 && <p style={{ color: "rgba(255,255,255,.6)", fontSize: 11, marginTop: 8, textAlign: "center" }}>+{nudges.length - 1} cutucada{nudges.length - 1 > 1 ? "s" : ""} pendente{nudges.length - 1 > 1 ? "s" : ""}</p>}
     </div>
   );
 }
 
-// ── Send Nudge Modal ──────────────────────────────────────────────────────────
 function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSent }) {
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("call");
@@ -108,17 +88,7 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
   async function send() {
     if (!target || sending) return;
     setSending(true);
-    await supabase.from("nudges").insert({
-      family_code: familyCode,
-      from_member: currentMember,
-      to_member: target,
-      contact_id: contact.id,
-      contact_name: contact.name,
-      contact_phone: contact.phone,
-      contact_emoji: contact.emoji,
-      action,
-      seen: false
-    });
+    await supabase.from("nudges").insert({ family_code: familyCode, from_member: currentMember, to_member: target, contact_id: contact.id, contact_name: contact.name, contact_phone: contact.phone, contact_emoji: contact.emoji, action, seen: false });
     setSending(false);
     onSent(`Cutucada enviada para ${target}! 👋`);
     onClose();
@@ -130,34 +100,19 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
       <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 21, color: "#1e1006", marginBottom: 6, fontWeight: 700 }}>👋 Cutucar alguém</h2>
-        <p style={{ fontSize: 13, color: "#9a6c3a", marginBottom: 20, lineHeight: 1.5 }}>
-          Manda uma notificação para alguém da família entrar em contato com {contact.emoji} <strong>{contact.name}</strong>.
-        </p>
-
-        {/* Ação */}
+        <p style={{ fontSize: 13, color: "#9a6c3a", marginBottom: 20, lineHeight: 1.5 }}>Manda uma notificação para alguém da família entrar em contato com {contact.emoji} <strong>{contact.name}</strong>.</p>
         <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>O que fazer?</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
-          <button onClick={() => setAction("call")} style={{ padding: "13px", borderRadius: 14, border: action === "call" ? "2px solid #b85e22" : "2px solid #e0c9a8", background: action === "call" ? "rgba(184,94,34,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "call" ? "#b85e22" : "#7a5228" }}>
-            📞 Ligar
-          </button>
-          <button onClick={() => setAction("whatsapp")} style={{ padding: "13px", borderRadius: 14, border: action === "whatsapp" ? "2px solid #25d366" : "2px solid #e0c9a8", background: action === "whatsapp" ? "rgba(37,211,102,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "whatsapp" ? "#128c7e" : "#7a5228" }}>
-            💬 WhatsApp
-          </button>
+          <button onClick={() => setAction("call")} style={{ padding: "13px", borderRadius: 14, border: action === "call" ? "2px solid #b85e22" : "2px solid #e0c9a8", background: action === "call" ? "rgba(184,94,34,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "call" ? "#b85e22" : "#7a5228" }}>📞 Ligar</button>
+          <button onClick={() => setAction("whatsapp")} style={{ padding: "13px", borderRadius: 14, border: action === "whatsapp" ? "2px solid #25d366" : "2px solid #e0c9a8", background: action === "whatsapp" ? "rgba(37,211,102,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "whatsapp" ? "#128c7e" : "#7a5228" }}>💬 WhatsApp</button>
         </div>
-
-        {/* Quem cutucar */}
         <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Quem cutucar?</p>
         {otherMembers.length === 0 ? (
           <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: "#b09070", fontStyle: "italic", marginBottom: 20 }}>Nenhum outro membro na família ainda.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
             {otherMembers.map((m, i) => (
-              <button key={i} onClick={() => setTarget(m.name)} style={{
-                display: "flex", alignItems: "center", gap: 12, padding: "13px 16px",
-                borderRadius: 14, border: target === m.name ? "2px solid #b85e22" : "2px solid #e0c9a8",
-                background: target === m.name ? "rgba(184,94,34,.08)" : "rgba(255,255,255,.8)",
-                cursor: "pointer", textAlign: "left"
-              }}>
+              <button key={i} onClick={() => setTarget(m.name)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderRadius: 14, border: target === m.name ? "2px solid #b85e22" : "2px solid #e0c9a8", background: target === m.name ? "rgba(184,94,34,.08)" : "rgba(255,255,255,.8)", cursor: "pointer", textAlign: "left" }}>
                 <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#b85e22,#8f4214)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 15, flexShrink: 0 }}>{m.name[0].toUpperCase()}</div>
                 <span style={{ fontFamily: "Georgia,serif", fontSize: 16, color: "#1e1006", fontWeight: target === m.name ? 700 : 400 }}>{m.name}</span>
                 {target === m.name && <span style={{ marginLeft: "auto", color: "#b85e22" }}>✓</span>}
@@ -165,8 +120,7 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
             ))}
           </div>
         )}
-
-        <button onClick={send} disabled={!target || sending} style={{ width: "100%", padding: "16px", borderRadius: 16, border: "none", background: target ? "linear-gradient(135deg,#b85e22,#8f4214)" : "#e0d0bc", color: target ? "#fff" : "#bba07a", fontFamily: "Georgia,serif", fontWeight: 700, fontSize: 17, cursor: target ? "pointer" : "not-allowed", boxShadow: target ? "0 6px 20px rgba(184,94,34,.4)" : "none" }}>
+        <button onClick={send} disabled={!target || sending} style={{ width: "100%", padding: "16px", borderRadius: 16, border: "none", background: target ? "linear-gradient(135deg,#b85e22,#8f4214)" : "#e0d0bc", color: target ? "#fff" : "#bba07a", fontFamily: "Georgia,serif", fontWeight: 700, fontSize: 17, cursor: target ? "pointer" : "not-allowed" }}>
           {sending ? "Enviando..." : "👋 Cutucar!"}
         </button>
       </div>
@@ -174,7 +128,6 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
   );
 }
 
-// ── Emoji Input ───────────────────────────────────────────────────────────────
 function EmojiInput({ value, onChange }) {
   function handleInput(e) {
     const chars = [...e.target.value].filter(c => c.codePointAt(0) > 255);
@@ -186,8 +139,7 @@ function EmojiInput({ value, onChange }) {
       <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.9)", borderRadius: 14, border: "1.5px solid #e0c9a8", padding: "12px 16px" }}>
         <span style={{ fontSize: 40 }}>{value}</span>
         <div style={{ flex: 1 }}>
-          <input value="" onChange={handleInput} placeholder="Toque aqui e escolha um emoji 😊"
-            style={{ width: "100%", border: "none", background: "transparent", fontSize: 15, fontFamily: "Georgia,serif", color: "#5a3818", outline: "none" }} />
+          <input value="" onChange={handleInput} placeholder="Toque aqui e escolha um emoji 😊" style={{ width: "100%", border: "none", background: "transparent", fontSize: 15, fontFamily: "Georgia,serif", color: "#5a3818", outline: "none" }} />
           <p style={{ fontSize: 11, color: "#b09070", marginTop: 3 }}>Celular: toque no 🌐 ou 😊 do teclado</p>
         </div>
       </div>
@@ -195,7 +147,6 @@ function EmojiInput({ value, onChange }) {
   );
 }
 
-// ── Edit Modal ────────────────────────────────────────────────────────────────
 function EditModal({ contact, onSave, onClose }) {
   const [name, setName] = useState(contact.name || "");
   const [label, setLabel] = useState(contact.label || "");
@@ -231,7 +182,6 @@ function EditModal({ contact, onSave, onClose }) {
   );
 }
 
-// ── Contact Detail ────────────────────────────────────────────────────────────
 function ContactDetail({ contact, members, currentMember, familyCode, onClose, onUpdate, onEdit, onToast }) {
   const [note, setNote] = useState("");
   const [amount, setAmount] = useState("");
@@ -270,8 +220,6 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
         onClick={e => e.target === e.currentTarget && onClose()}>
         <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "20px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
           <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 18px" }} />
-
-          {/* Header */}
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: "1px solid #f0dfc4" }}>
             <span style={{ fontSize: 50 }}>{contact.emoji}</span>
             <div style={{ flex: 1 }}>
@@ -282,21 +230,17 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
             </div>
             <button onClick={onEdit} style={{ flexShrink: 0, background: "rgba(184,94,34,.1)", border: "1.5px solid rgba(184,94,34,.25)", borderRadius: 12, padding: "8px 12px", fontSize: 13, color: "#b85e22", cursor: "pointer", fontWeight: 600 }}>✏️ Editar</button>
           </div>
-
-          {/* Action buttons */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 20 }}>
-            <a href={`tel:${phone}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13, boxShadow: "0 4px 14px rgba(184,94,34,.35)" }}>
+            <a href={`tel:${phone}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>
               <span style={{ fontSize: 20 }}>📞</span> Ligar
             </a>
-            <a href={`https://wa.me/55${phone}`} target="_blank" rel="noreferrer" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13, boxShadow: "0 4px 14px rgba(37,211,102,.3)" }}>
+            <a href={`https://wa.me/55${phone}`} target="_blank" rel="noreferrer" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>
               <span style={{ fontSize: 20 }}>💬</span> WhatsApp
             </a>
-            <button onClick={() => setShowNudge(true)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#f39c12,#d68910)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 4px 14px rgba(243,156,18,.35)" }}>
+            <button onClick={() => setShowNudge(true)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#f39c12,#d68910)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
               <span style={{ fontSize: 20 }}>👋</span> Cutucar
             </button>
           </div>
-
-          {/* Descrição */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px" }}>Descrição</p>
@@ -314,8 +258,6 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
               </p>
             )}
           </div>
-
-          {/* Registrar interação */}
           <div style={{ background: "rgba(184,94,34,.06)", borderRadius: 16, padding: "16px 14px", marginBottom: 20 }}>
             <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>📝 Registrar interação</p>
             <input value={note} onChange={e => setNote(e.target.value)} placeholder="O que foi feito? (ex: troquei os freios, pedi pizza...)" style={{ ...fS, marginBottom: 8 }} />
@@ -326,8 +268,6 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
               </button>
             </div>
           </div>
-
-          {/* Histórico */}
           <div>
             <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>🕐 Histórico</p>
             {interactions.length === 0 ? (
@@ -348,22 +288,11 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
           </div>
         </div>
       </div>
-
-      {showNudge && (
-        <NudgeModal
-          contact={contact}
-          members={members}
-          currentMember={currentMember}
-          familyCode={familyCode}
-          onClose={() => setShowNudge(false)}
-          onSent={onToast}
-        />
-      )}
+      {showNudge && <NudgeModal contact={contact} members={members} currentMember={currentMember} familyCode={familyCode} onClose={() => setShowNudge(false)} onSent={onToast} />}
     </>
   );
 }
 
-// ── Contact Cards ─────────────────────────────────────────────────────────────
 function ContactCardGrid({ contact, onDelete, onTap }) {
   const [confirm, setConfirm] = useState(false);
   return (
@@ -414,7 +343,6 @@ function ContactCardList({ contact, onDelete, onTap }) {
   );
 }
 
-// ── Add Modal ─────────────────────────────────────────────────────────────────
 function AddModal({ onSave, onClose }) {
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
@@ -450,7 +378,6 @@ function AddModal({ onSave, onClose }) {
   );
 }
 
-// ── Members Modal ─────────────────────────────────────────────────────────────
 function MembersModal({ members, family, onClose, onToast }) {
   function shareFamily() {
     const msg = `Oi! Entrei no *DaFamília* 🏡\n\nVem guardar os contatos da nossa família comigo!\n\n👉 https://da-familia.vercel.app\n🔑 Código: *${family.code}*\n🔒 Peça a senha pra mim`;
@@ -489,7 +416,6 @@ function MembersModal({ members, family, onClose, onToast }) {
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [family, setFamily] = useState(null);
@@ -517,7 +443,15 @@ export default function App() {
 
   const bg = "radial-gradient(ellipse at 25% 0%,#f7e4c4 0%,#fdf7ee 50%,#ede4d4 100%)";
 
-  // ── Auto-login ──────────────────────────────────────────────────────────────
+  const checkNudges = useCallback(async () => {
+    if (!currentMember || !family) return;
+    const { data } = await supabase.from("nudges")
+      .select("*").eq("family_code", family.code)
+      .eq("to_member", currentMember).eq("seen", false)
+      .order("created_at", { ascending: true });
+    if (data && data.length > 0) setNudges(data);
+  }, [currentMember, family]);
+
   useEffect(() => {
     const saved = localStorage.getItem("df_session");
     if (saved) {
@@ -528,13 +462,8 @@ export default function App() {
           setLoading(true);
           supabase.from("families").select("*").eq("code", familyCode).single()
             .then(({ data: f }) => {
-              if (f) {
-                setFamily(f);
-                setCurrentMember(memberNameSaved || "");
-                return fetchFamilyData(familyCode);
-              } else {
-                localStorage.removeItem("df_session");
-              }
+              if (f) { setFamily(f); setCurrentMember(memberNameSaved || ""); return fetchFamilyData(familyCode); }
+              else { localStorage.removeItem("df_session"); }
             })
             .then(() => { setScreen("family"); setLoading(false); setLoadingText(""); })
             .catch(() => { setLoading(false); setLoadingText(""); });
@@ -543,24 +472,13 @@ export default function App() {
     }
   }, []);
 
-  // ── Poll nudges ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (screen === "family" && currentMember && family) {
       checkNudges();
       nudgeInterval.current = setInterval(checkNudges, 15000);
     }
     return () => clearInterval(nudgeInterval.current);
-  }, [screen, currentMember, family]);
-  
-
-  async function checkNudges() {
-    if (!currentMember || !family) return;
-    const { data } = await supabase.from("nudges")
-      .select("*").eq("family_code", family.code)
-      .eq("to_member", currentMember).eq("seen", false)
-      .order("created_at", { ascending: true });
-    if (data && data.length > 0) setNudges(data);
-  }
+  }, [screen, currentMember, family, checkNudges]);
 
   async function dismissNudge(id) {
     await supabase.from("nudges").update({ seen: true }).eq("id", id);
@@ -584,8 +502,7 @@ export default function App() {
 
   async function createFamily() {
     if (!newFamilyName.trim() || !newPass.trim() || !memberName.trim()) return;
-    setLoadingText("Criando sua família...");
-    setLoading(true);
+    setLoadingText("Criando sua família..."); setLoading(true);
     const code = generateCode();
     const hashed = await hashPassword(newPass.trim());
     const { error } = await supabase.from("families").insert({ code, name: newFamilyName.trim(), password: hashed });
@@ -601,13 +518,11 @@ export default function App() {
   async function joinFamily() {
     const code = joinCode.trim().toUpperCase();
     if (!yourName.trim()) { setErr("Digite seu nome 👤"); return; }
-    setLoadingText("Entrando na família...");
-    setLoading(true);
+    setLoadingText("Entrando na família..."); setLoading(true);
     const { data: f } = await supabase.from("families").select("*").eq("code", code).single();
     if (!f) { setLoading(false); setLoadingText(""); setErr("Família não encontrada 😕"); return; }
     const hashed = await hashPassword(joinPass.trim());
     if (f.password !== hashed) { setLoading(false); setLoadingText(""); setErr("Senha incorreta 🔒"); return; }
-    // Evitar membro duplicado
     const { data: existing } = await supabase.from("members").select("*").eq("family_code", code).eq("name", yourName.trim());
     if (!existing || existing.length === 0) {
       await supabase.from("members").insert({ family_code: code, name: yourName.trim() });
@@ -628,8 +543,7 @@ export default function App() {
     await supabase.from("contacts").update({ name: updated.name, label: updated.label, establishment: updated.establishment, phone: updated.phone, emoji: updated.emoji }).eq("id", updated.id);
     const newContact = { ...selectedContact, ...updated };
     setContacts(contacts.map(c => c.id === updated.id ? newContact : c));
-    setEditingContact(null);
-    setSelectedContact(newContact);
+    setEditingContact(null); setSelectedContact(newContact);
     setToast("Contato atualizado! ✅");
   }
 
@@ -671,10 +585,8 @@ export default function App() {
       `}</style>
       <div style={{ minHeight: "100vh", background: bg, fontFamily: "system-ui,sans-serif", maxWidth: 480, margin: "0 auto" }}>
 
-        {/* NUDGE BANNER */}
         <NudgeBanner nudges={nudges} onDismiss={dismissNudge} />
 
-        {/* HOME */}
         {screen === "home" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ textAlign: "center", marginBottom: 44 }}>
@@ -682,22 +594,17 @@ export default function App() {
               <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 48, fontWeight: 800, color: "#1e1006", letterSpacing: "-1.5px", lineHeight: .95 }}>
                 Da<span style={{ color: "#b85e22" }}>Família</span>
               </h1>
-              <p style={{ color: "#7a5228", fontSize: 14, margin: "14px auto 0", lineHeight: 1.65, maxWidth: 260 }}>
-                A agenda de contatos da sua família, preservada de geração em geração.
-              </p>
+              <p style={{ color: "#7a5228", fontSize: 14, margin: "14px auto 0", lineHeight: 1.65, maxWidth: 260 }}>A agenda de contatos da sua família, preservada de geração em geração.</p>
             </div>
             <div style={{ width: 44, height: 2, background: "linear-gradient(90deg,transparent,#b85e22,transparent)", marginBottom: 40 }} />
             <div style={{ width: "100%", maxWidth: 320, display: "flex", flexDirection: "column", gap: 13 }}>
               <button onClick={() => setScreen("create")} style={{ padding: "18px 24px", borderRadius: 18, border: "none", background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 24px rgba(184,94,34,.45)", WebkitTapHighlightColor: "transparent" }}>✨ Criar minha família</button>
               <button onClick={() => { setScreen("join"); setErr(""); }} style={{ padding: "18px 24px", borderRadius: 18, border: "2px solid #ddc9a4", background: "rgba(255,255,255,.75)", color: "#5a3818", fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>🔗 Entrar em uma família</button>
             </div>
-            <p style={{ marginTop: 32, fontSize: 12, color: "#b09070", textAlign: "center", lineHeight: 1.7, maxWidth: 230 }}>
-              Nunca mais vai no mecânico errado 😄<br />Compartilhe o código com a família.
-            </p>
+            <p style={{ marginTop: 32, fontSize: 12, color: "#b09070", textAlign: "center", lineHeight: 1.7, maxWidth: 230 }}>Nunca mais vai no mecânico errado 😄<br />Compartilhe o código com a família.</p>
           </div>
         )}
 
-        {/* CREATE */}
         {screen === "create" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ width: "100%", maxWidth: 360 }}>
@@ -713,7 +620,6 @@ export default function App() {
           </div>
         )}
 
-        {/* JOIN */}
         {screen === "join" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ width: "100%", maxWidth: 360 }}>
@@ -729,7 +635,6 @@ export default function App() {
           </div>
         )}
 
-        {/* FAMILY */}
         {screen === "family" && family && (
           <div style={{ minHeight: "100vh", paddingTop: nudges.length > 0 ? 160 : 0 }}>
             <div style={{ padding: "18px 16px 12px", background: "rgba(253,247,238,.97)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(210,175,120,.25)", position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
@@ -741,9 +646,7 @@ export default function App() {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
                     <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 11, fontWeight: 800, letterSpacing: "3px", color: "#b85e22", background: "rgba(184,94,34,.1)", padding: "2px 9px", borderRadius: 20, cursor: "pointer" }}>{family.code} 📋</span>
-                    <button onClick={() => setShowMembers(true)} style={{ background: "none", border: "1px solid #ddc9a4", borderRadius: 20, padding: "2px 9px", fontSize: 11, color: "#7a5228", cursor: "pointer" }}>
-                      👥 {members.length} {nudges.length > 0 && <span style={{ background: "#b85e22", color: "#fff", borderRadius: "50%", padding: "1px 5px", fontSize: 10, marginLeft: 4 }}>{nudges.length}</span>}
-                    </button>
+                    <button onClick={() => setShowMembers(true)} style={{ background: "none", border: "1px solid #ddc9a4", borderRadius: 20, padding: "2px 9px", fontSize: 11, color: "#7a5228", cursor: "pointer" }}>👥 {members.length}</button>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -789,16 +692,7 @@ export default function App() {
         {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} />}
         {selectedContact && !editingContact && (
-          <ContactDetail
-            contact={selectedContact}
-            members={members}
-            currentMember={currentMember}
-            familyCode={family?.code}
-            onClose={() => setSelectedContact(null)}
-            onUpdate={updateContact}
-            onEdit={() => setEditingContact(selectedContact)}
-            onToast={setToast}
-          />
+          <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} />
         )}
         {editingContact && (
           <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} />

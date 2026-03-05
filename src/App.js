@@ -551,6 +551,7 @@ export default function App() {
     }
     return () => clearInterval(nudgeInterval.current);
   }, [screen, currentMember, family]);
+  
 
   async function checkNudges() {
     if (!currentMember || !family) return;

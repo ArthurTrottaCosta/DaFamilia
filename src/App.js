@@ -9,24 +9,28 @@ const supabase = createClient(
 function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
-
 function formatPhone(v) {
   const n = v.replace(/\D/g, "").slice(0, 11);
   if (n.length <= 2) return n;
   if (n.length <= 7) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
   return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
 }
-
 function formatDate(ts) {
   return new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
-
 function rawPhone(p) { return p.replace(/\D/g, ""); }
-
 async function hashPassword(password) {
   const encoded = new TextEncoder().encode(password + "dafamilia_salt_2024");
   const buffer = await crypto.subtle.digest("SHA-256", encoded);
   return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+const MEMBER_COLORS = ["#b85e22","#2563eb","#16a34a","#9333ea","#dc2626","#0891b2","#d97706","#be185d"];
+function memberColor(name) {
+  if (!name) return "#b85e22";
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return MEMBER_COLORS[Math.abs(hash) % MEMBER_COLORS.length];
 }
 
 const fS = {
@@ -35,14 +39,14 @@ const fS = {
   marginBottom: 11, outline: "none", boxSizing: "border-box", WebkitAppearance: "none",
 };
 
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ msg, onClose }) {
   const cb = useCallback(onClose, [onClose]);
   useEffect(() => { const t = setTimeout(cb, 3000); return () => clearTimeout(t); }, [cb]);
-  return (
-    <div style={{ position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)", background: "#1a0f00", color: "#fdf0e0", padding: "11px 22px", borderRadius: 50, fontSize: 13, zIndex: 9999, whiteSpace: "nowrap", boxShadow: "0 6px 28px rgba(0,0,0,.35)", pointerEvents: "none" }}>{msg}</div>
-  );
+  return <div style={{ position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)", background: "#1a0f00", color: "#fdf0e0", padding: "11px 22px", borderRadius: 50, fontSize: 13, zIndex: 9999, whiteSpace: "nowrap", boxShadow: "0 6px 28px rgba(0,0,0,.35)", pointerEvents: "none" }}>{msg}</div>;
 }
 
+// ── Loader ────────────────────────────────────────────────────────────────────
 function Loader({ text }) {
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(253,247,238,.95)", zIndex: 9998, gap: 14 }}>
@@ -52,6 +56,7 @@ function Loader({ text }) {
   );
 }
 
+// ── Nudge Banner ──────────────────────────────────────────────────────────────
 function NudgeBanner({ nudges, onDismiss }) {
   const n = nudges[0];
   if (!n) return null;
@@ -60,18 +65,14 @@ function NudgeBanner({ nudges, onDismiss }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div>
           <p style={{ color: "rgba(255,255,255,.8)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".5px" }}>👋 {n.from_member} quer que você:</p>
-          <p style={{ color: "#fff", fontFamily: "Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 4 }}>
-            {n.action === "call" ? "📞 Ligue" : "💬 Mande mensagem"} para {n.contact_emoji} {n.contact_name}
-          </p>
+          <p style={{ color: "#fff", fontFamily: "Georgia,serif", fontSize: 17, fontWeight: 700, marginTop: 4 }}>{n.action === "call" ? "📞 Ligue" : "💬 Mande mensagem"} para {n.contact_emoji} {n.contact_name}</p>
         </div>
         <button onClick={() => onDismiss(n.id)} style={{ background: "rgba(255,255,255,.2)", border: "none", color: "#fff", borderRadius: 20, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>✕</button>
       </div>
       <div style={{ display: "flex", gap: 10 }}>
-        {n.action === "call" ? (
-          <a href={`tel:${rawPhone(n.contact_phone)}`} onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>📞 Ligar agora</a>
-        ) : (
-          <a href={`https://wa.me/55${rawPhone(n.contact_phone)}`} target="_blank" rel="noreferrer" onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>💬 WhatsApp agora</a>
-        )}
+        {n.action === "call"
+          ? <a href={`tel:${rawPhone(n.contact_phone)}`} onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>📞 Ligar agora</a>
+          : <a href={`https://wa.me/55${rawPhone(n.contact_phone)}`} target="_blank" rel="noreferrer" onClick={() => onDismiss(n.id)} style={{ flex: 1, padding: "11px", borderRadius: 12, background: "rgba(255,255,255,.2)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center", border: "1.5px solid rgba(255,255,255,.4)" }}>💬 WhatsApp agora</a>}
         <button onClick={() => onDismiss(n.id)} style={{ padding: "11px 16px", borderRadius: 12, background: "transparent", color: "rgba(255,255,255,.7)", border: "1.5px solid rgba(255,255,255,.2)", fontSize: 13, cursor: "pointer" }}>Depois</button>
       </div>
       {nudges.length > 1 && <p style={{ color: "rgba(255,255,255,.6)", fontSize: 11, marginTop: 8, textAlign: "center" }}>+{nudges.length - 1} cutucada{nudges.length - 1 > 1 ? "s" : ""} pendente{nudges.length - 1 > 1 ? "s" : ""}</p>}
@@ -79,47 +80,41 @@ function NudgeBanner({ nudges, onDismiss }) {
   );
 }
 
+// ── Nudge Modal ───────────────────────────────────────────────────────────────
 function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSent }) {
   const [target, setTarget] = useState("");
   const [action, setAction] = useState("call");
   const [sending, setSending] = useState(false);
   const otherMembers = members.filter(m => m.name !== currentMember);
-
   async function send() {
     if (!target || sending) return;
     setSending(true);
     await supabase.from("nudges").insert({ family_code: familyCode, from_member: currentMember, to_member: target, contact_id: contact.id, contact_name: contact.name, contact_phone: contact.phone, contact_emoji: contact.emoji, action, seen: false });
-    setSending(false);
-    onSent(`Cutucada enviada para ${target}! 👋`);
-    onClose();
+    setSending(false); onSent(`Cutucada enviada para ${target}! 👋`); onClose();
   }
-
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.6)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1100, backdropFilter: "blur(4px)" }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.6)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1100, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 21, color: "#1e1006", marginBottom: 6, fontWeight: 700 }}>👋 Cutucar alguém</h2>
-        <p style={{ fontSize: 13, color: "#9a6c3a", marginBottom: 20, lineHeight: 1.5 }}>Manda uma notificação para alguém da família entrar em contato com {contact.emoji} <strong>{contact.name}</strong>.</p>
+        <p style={{ fontSize: 13, color: "#9a6c3a", marginBottom: 20, lineHeight: 1.5 }}>Manda uma notificação para alguém entrar em contato com {contact.emoji} <strong>{contact.name}</strong>.</p>
         <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>O que fazer?</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
           <button onClick={() => setAction("call")} style={{ padding: "13px", borderRadius: 14, border: action === "call" ? "2px solid #b85e22" : "2px solid #e0c9a8", background: action === "call" ? "rgba(184,94,34,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "call" ? "#b85e22" : "#7a5228" }}>📞 Ligar</button>
           <button onClick={() => setAction("whatsapp")} style={{ padding: "13px", borderRadius: 14, border: action === "whatsapp" ? "2px solid #25d366" : "2px solid #e0c9a8", background: action === "whatsapp" ? "rgba(37,211,102,.08)" : "#fff", cursor: "pointer", fontWeight: 700, fontSize: 14, color: action === "whatsapp" ? "#128c7e" : "#7a5228" }}>💬 WhatsApp</button>
         </div>
         <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Quem cutucar?</p>
-        {otherMembers.length === 0 ? (
-          <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: "#b09070", fontStyle: "italic", marginBottom: 20 }}>Nenhum outro membro na família ainda.</p>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-            {otherMembers.map((m, i) => (
-              <button key={i} onClick={() => setTarget(m.name)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderRadius: 14, border: target === m.name ? "2px solid #b85e22" : "2px solid #e0c9a8", background: target === m.name ? "rgba(184,94,34,.08)" : "rgba(255,255,255,.8)", cursor: "pointer", textAlign: "left" }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#b85e22,#8f4214)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 15, flexShrink: 0 }}>{m.name[0].toUpperCase()}</div>
-                <span style={{ fontFamily: "Georgia,serif", fontSize: 16, color: "#1e1006", fontWeight: target === m.name ? 700 : 400 }}>{m.name}</span>
-                {target === m.name && <span style={{ marginLeft: "auto", color: "#b85e22" }}>✓</span>}
-              </button>
-            ))}
-          </div>
-        )}
+        {otherMembers.length === 0
+          ? <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: "#b09070", fontStyle: "italic", marginBottom: 20 }}>Nenhum outro membro na família ainda.</p>
+          : <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+              {otherMembers.map((m, i) => (
+                <button key={i} onClick={() => setTarget(m.name)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderRadius: 14, border: target === m.name ? "2px solid #b85e22" : "2px solid #e0c9a8", background: target === m.name ? "rgba(184,94,34,.08)" : "rgba(255,255,255,.8)", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: `linear-gradient(135deg,${memberColor(m.name)},${memberColor(m.name)}99)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 15, flexShrink: 0 }}>{m.name[0].toUpperCase()}</div>
+                  <span style={{ fontFamily: "Georgia,serif", fontSize: 16, color: "#1e1006", fontWeight: target === m.name ? 700 : 400 }}>{m.name}</span>
+                  {target === m.name && <span style={{ marginLeft: "auto", color: "#b85e22" }}>✓</span>}
+                </button>
+              ))}
+            </div>}
         <button onClick={send} disabled={!target || sending} style={{ width: "100%", padding: "16px", borderRadius: 16, border: "none", background: target ? "linear-gradient(135deg,#b85e22,#8f4214)" : "#e0d0bc", color: target ? "#fff" : "#bba07a", fontFamily: "Georgia,serif", fontWeight: 700, fontSize: 17, cursor: target ? "pointer" : "not-allowed" }}>
           {sending ? "Enviando..." : "👋 Cutucar!"}
         </button>
@@ -128,6 +123,7 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
   );
 }
 
+// ── Emoji Input ───────────────────────────────────────────────────────────────
 function EmojiInput({ value, onChange }) {
   function handleInput(e) {
     const chars = [...e.target.value].filter(c => c.codePointAt(0) > 255);
@@ -147,6 +143,7 @@ function EmojiInput({ value, onChange }) {
   );
 }
 
+// ── Edit Modal ────────────────────────────────────────────────────────────────
 function EditModal({ contact, onSave, onClose }) {
   const [name, setName] = useState(contact.name || "");
   const [label, setLabel] = useState(contact.label || "");
@@ -155,17 +152,14 @@ function EditModal({ contact, onSave, onClose }) {
   const [emoji, setEmoji] = useState(contact.emoji || "⭐");
   const [saving, setSaving] = useState(false);
   const valid = name.trim() && phone.replace(/\D/g, "").length >= 8;
-
   async function handleSave() {
     if (!valid || saving) return;
     setSaving(true);
     await onSave({ ...contact, name: name.trim(), label: label.trim(), establishment: est.trim(), phone, emoji });
     setSaving(false);
   }
-
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1050, backdropFilter: "blur(4px)" }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1050, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: "#1e1006", marginBottom: 18, fontWeight: 700 }}>Editar contato</h2>
@@ -182,6 +176,7 @@ function EditModal({ contact, onSave, onClose }) {
   );
 }
 
+// ── Contact Detail ────────────────────────────────────────────────────────────
 function ContactDetail({ contact, members, currentMember, familyCode, onClose, onUpdate, onEdit, onToast }) {
   const [note, setNote] = useState("");
   const [amount, setAmount] = useState("");
@@ -192,32 +187,24 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
   const [showNudge, setShowNudge] = useState(false);
 
   useEffect(() => {
-    supabase.from("interactions").select("*").eq("contact_id", contact.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => { if (data) setInteractions(data); });
+    supabase.from("interactions").select("*").eq("contact_id", contact.id).order("created_at", { ascending: false }).then(({ data }) => { if (data) setInteractions(data); });
   }, [contact.id]);
 
   async function saveDesc() {
     await supabase.from("contacts").update({ description: desc }).eq("id", contact.id);
-    onUpdate({ ...contact, description: desc });
-    setEditDesc(false);
+    onUpdate({ ...contact, description: desc }); setEditDesc(false);
   }
-
   async function addLog() {
     if (!note.trim()) return;
     setSaving(true);
     const { data } = await supabase.from("interactions").insert({ contact_id: contact.id, note: note.trim(), amount: amount.trim() || null }).select().single();
     if (data) setInteractions([data, ...interactions]);
-    setNote(""); setAmount(""); setSaving(false);
-    onToast("Interação registrada! ✅");
+    setNote(""); setAmount(""); setSaving(false); onToast("Interação registrada! ✅");
   }
-
   const phone = rawPhone(contact.phone);
-
   return (
     <>
-      <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }}
-        onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
         <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "20px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
           <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 18px" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: "1px solid #f0dfc4" }}>
@@ -231,15 +218,9 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
             <button onClick={onEdit} style={{ flexShrink: 0, background: "rgba(184,94,34,.1)", border: "1.5px solid rgba(184,94,34,.25)", borderRadius: 12, padding: "8px 12px", fontSize: 13, color: "#b85e22", cursor: "pointer", fontWeight: 600 }}>✏️ Editar</button>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 20 }}>
-            <a href={`tel:${phone}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>
-              <span style={{ fontSize: 20 }}>📞</span> Ligar
-            </a>
-            <a href={`https://wa.me/55${phone}`} target="_blank" rel="noreferrer" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}>
-              <span style={{ fontSize: 20 }}>💬</span> WhatsApp
-            </a>
-            <button onClick={() => setShowNudge(true)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#f39c12,#d68910)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-              <span style={{ fontSize: 20 }}>👋</span> Cutucar
-            </button>
+            <a href={`tel:${phone}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}><span style={{ fontSize: 20 }}>📞</span>Ligar</a>
+            <a href={`https://wa.me/55${phone}`} target="_blank" rel="noreferrer" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 13 }}><span style={{ fontSize: 20 }}>💬</span>WhatsApp</a>
+            <button onClick={() => setShowNudge(true)} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "13px 8px", borderRadius: 14, background: "linear-gradient(135deg,#f39c12,#d68910)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer" }}><span style={{ fontSize: 20 }}>👋</span>Cutucar</button>
           </div>
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -248,43 +229,34 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
             </div>
             {editDesc ? (
               <div>
-                <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Ex: Atende aos sábados, pedir pelo João, aceita Pix..."
-                  style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e0c9a8", background: "#fff", fontFamily: "Georgia,serif", fontSize: 14, color: "#1e1006", outline: "none", resize: "vertical", minHeight: 80, boxSizing: "border-box" }} />
+                <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="Ex: Atende aos sábados, aceita Pix..." style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e0c9a8", background: "#fff", fontFamily: "Georgia,serif", fontSize: 14, color: "#1e1006", outline: "none", resize: "vertical", minHeight: 80, boxSizing: "border-box" }} />
                 <button onClick={saveDesc} style={{ marginTop: 6, padding: "8px 18px", borderRadius: 10, border: "none", background: "#b85e22", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Salvar</button>
               </div>
-            ) : (
-              <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: desc ? "#3a2008" : "#b09070", fontStyle: desc ? "normal" : "italic", lineHeight: 1.6 }}>
-                {desc || "Nenhuma descrição. Toque em editar para adicionar."}
-              </p>
-            )}
+            ) : <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: desc ? "#3a2008" : "#b09070", fontStyle: desc ? "normal" : "italic", lineHeight: 1.6 }}>{desc || "Nenhuma descrição."}</p>}
           </div>
           <div style={{ background: "rgba(184,94,34,.06)", borderRadius: 16, padding: "16px 14px", marginBottom: 20 }}>
             <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>📝 Registrar interação</p>
-            <input value={note} onChange={e => setNote(e.target.value)} placeholder="O que foi feito? (ex: troquei os freios, pedi pizza...)" style={{ ...fS, marginBottom: 8 }} />
+            <input value={note} onChange={e => setNote(e.target.value)} placeholder="O que foi feito?" style={{ ...fS, marginBottom: 8 }} />
             <div style={{ display: "flex", gap: 8 }}>
               <input value={amount} onChange={e => setAmount(e.target.value)} placeholder="Valor gasto (opcional)" style={{ ...fS, flex: 1, marginBottom: 0 }} />
-              <button onClick={addLog} disabled={saving} style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: note.trim() ? "#b85e22" : "#ddd", color: note.trim() ? "#fff" : "#aaa", fontWeight: 700, fontSize: 14, cursor: note.trim() ? "pointer" : "not-allowed", whiteSpace: "nowrap" }}>
-                {saving ? "..." : "+ Salvar"}
-              </button>
+              <button onClick={addLog} disabled={saving} style={{ padding: "14px 18px", borderRadius: 14, border: "none", background: note.trim() ? "#b85e22" : "#ddd", color: note.trim() ? "#fff" : "#aaa", fontWeight: 700, fontSize: 14, cursor: note.trim() ? "pointer" : "not-allowed", whiteSpace: "nowrap" }}>{saving ? "..." : "+ Salvar"}</button>
             </div>
           </div>
           <div>
             <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>🕐 Histórico</p>
-            {interactions.length === 0 ? (
-              <p style={{ fontFamily: "Georgia,serif", fontSize: 13, color: "#b09070", fontStyle: "italic" }}>Nenhuma interação registrada ainda.</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {interactions.map(entry => (
-                  <div key={entry.id} style={{ background: "rgba(255,255,255,.8)", borderRadius: 12, padding: "12px 14px", border: "1px solid rgba(210,170,110,.3)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: "#9a6c3a" }}>{formatDate(entry.created_at)}</span>
-                      {entry.amount && <span style={{ fontSize: 12, fontWeight: 700, color: "#b85e22" }}>💰 {entry.amount}</span>}
+            {interactions.length === 0
+              ? <p style={{ fontFamily: "Georgia,serif", fontSize: 13, color: "#b09070", fontStyle: "italic" }}>Nenhuma interação registrada ainda.</p>
+              : <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {interactions.map(entry => (
+                    <div key={entry.id} style={{ background: "rgba(255,255,255,.8)", borderRadius: 12, padding: "12px 14px", border: "1px solid rgba(210,170,110,.3)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, color: "#9a6c3a" }}>{formatDate(entry.created_at)}</span>
+                        {entry.amount && <span style={{ fontSize: 12, fontWeight: 700, color: "#b85e22" }}>💰 {entry.amount}</span>}
+                      </div>
+                      <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: "#3a2008", lineHeight: 1.5 }}>{entry.note}</p>
                     </div>
-                    <p style={{ fontFamily: "Georgia,serif", fontSize: 14, color: "#3a2008", lineHeight: 1.5 }}>{entry.note}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>}
           </div>
         </div>
       </div>
@@ -293,6 +265,7 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
   );
 }
 
+// ── Contact Cards ─────────────────────────────────────────────────────────────
 function ContactCardGrid({ contact, onDelete, onTap }) {
   const [confirm, setConfirm] = useState(false);
   return (
@@ -302,19 +275,15 @@ function ContactCardGrid({ contact, onDelete, onTap }) {
       {contact.label && <div style={{ fontSize: 10, color: "#9a6c3a", textAlign: "center", textTransform: "uppercase", letterSpacing: ".4px" }}>{contact.label}</div>}
       {contact.establishment && <div style={{ fontFamily: "Georgia,serif", fontSize: 11, color: "#5a3818", textAlign: "center", fontStyle: "italic" }}>{contact.establishment}</div>}
       <div style={{ marginTop: 4, background: "#b85e22", color: "#fff", borderRadius: 30, padding: "5px 12px", fontSize: 11, fontWeight: 700 }}>{contact.phone}</div>
-      {contact.last_interaction && <div style={{ marginTop: 4, fontSize: 10, color: "#9a6c3a", textAlign: "center", lineHeight: 1.4 }}>Último:<br /><span style={{ color: "#b85e22", fontWeight: 600 }}>{formatDate(contact.last_interaction)}</span></div>}
-      {!confirm ? (
-        <button onClick={e => { e.stopPropagation(); setConfirm(true); }} style={{ position: "absolute", top: 8, right: 9, background: "none", border: "none", fontSize: 14, cursor: "pointer", opacity: .25, color: "#1e1006", padding: 4 }}>✕</button>
-      ) : (
-        <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 4, zIndex: 2 }}>
-          <button onClick={onDelete} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Sim</button>
-          <button onClick={() => setConfirm(false)} style={{ background: "#bbb", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Não</button>
-        </div>
-      )}
+      {!confirm
+        ? <button onClick={e => { e.stopPropagation(); setConfirm(true); }} style={{ position: "absolute", top: 8, right: 9, background: "none", border: "none", fontSize: 14, cursor: "pointer", opacity: .25, color: "#1e1006", padding: 4 }}>✕</button>
+        : <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 4, zIndex: 2 }}>
+            <button onClick={onDelete} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Sim</button>
+            <button onClick={() => setConfirm(false)} style={{ background: "#bbb", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Não</button>
+          </div>}
     </div>
   );
 }
-
 function ContactCardList({ contact, onDelete, onTap }) {
   const [confirm, setConfirm] = useState(false);
   const phone = rawPhone(contact.phone);
@@ -331,37 +300,26 @@ function ContactCardList({ contact, onDelete, onTap }) {
         <a href={`tel:${phone}`} onClick={e => e.stopPropagation()} style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg,#b85e22,#8f4214)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", fontSize: 16 }}>📞</a>
         <a href={`https://wa.me/55${phone}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg,#25d366,#128c7e)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", fontSize: 16 }}>💬</a>
       </div>
-      {!confirm ? (
-        <button onClick={e => { e.stopPropagation(); setConfirm(true); }} style={{ position: "absolute", top: 6, right: 8, background: "none", border: "none", fontSize: 13, cursor: "pointer", opacity: .25, color: "#1e1006", padding: 2 }}>✕</button>
-      ) : (
-        <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 6, right: 8, display: "flex", gap: 4, zIndex: 2 }}>
-          <button onClick={onDelete} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Sim</button>
-          <button onClick={() => setConfirm(false)} style={{ background: "#bbb", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Não</button>
-        </div>
-      )}
+      {!confirm
+        ? <button onClick={e => { e.stopPropagation(); setConfirm(true); }} style={{ position: "absolute", top: 6, right: 8, background: "none", border: "none", fontSize: 13, cursor: "pointer", opacity: .25, color: "#1e1006", padding: 2 }}>✕</button>
+        : <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 6, right: 8, display: "flex", gap: 4, zIndex: 2 }}>
+            <button onClick={onDelete} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Sim</button>
+            <button onClick={() => setConfirm(false)} style={{ background: "#bbb", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Não</button>
+          </div>}
     </div>
   );
 }
 
+// ── Add Contact Modal ─────────────────────────────────────────────────────────
 function AddModal({ onSave, onClose }) {
-  const [name, setName] = useState("");
-  const [label, setLabel] = useState("");
-  const [est, setEst] = useState("");
-  const [phone, setPhone] = useState("");
-  const [emoji, setEmoji] = useState("⭐");
-  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState(""); const [label, setLabel] = useState(""); const [est, setEst] = useState(""); const [phone, setPhone] = useState(""); const [emoji, setEmoji] = useState("⭐"); const [saving, setSaving] = useState(false);
   const valid = name.trim() && phone.replace(/\D/g, "").length >= 8;
-
   async function handleSave() {
-    if (!valid || saving) return;
-    setSaving(true);
-    await onSave({ name: name.trim(), label: label.trim(), establishment: est.trim(), phone, emoji });
-    setSaving(false);
+    if (!valid || saving) return; setSaving(true);
+    await onSave({ name: name.trim(), label: label.trim(), establishment: est.trim(), phone, emoji }); setSaving(false);
   }
-
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: "#1e1006", marginBottom: 18, fontWeight: 700 }}>Novo contato da família</h2>
@@ -378,16 +336,15 @@ function AddModal({ onSave, onClose }) {
   );
 }
 
+// ── Members Modal ─────────────────────────────────────────────────────────────
 function MembersModal({ members, family, onClose, onToast }) {
   function shareFamily() {
     const msg = `Oi! Entrei no *DaFamília* 🏡\n\nVem guardar os contatos da nossa família comigo!\n\n👉 https://da-familia.vercel.app\n🔑 Código: *${family.code}*\n🔒 Peça a senha pra mim`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
     onToast("Compartilhando via WhatsApp! 🚀");
   }
-
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }}
-      onClick={e => e.target === e.currentTarget && onClose()}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "70vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 20, color: "#1e1006", marginBottom: 6, fontWeight: 700 }}>👨‍👩‍👧‍👦 Membros da família</h2>
@@ -400,13 +357,11 @@ function MembersModal({ members, family, onClose, onToast }) {
             </div>
             <button onClick={() => { navigator.clipboard?.writeText(family.code); onToast("Código copiado! 📋"); }} style={{ background: "rgba(184,94,34,.1)", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 13, color: "#b85e22", cursor: "pointer", fontWeight: 600 }}>Copiar</button>
           </div>
-          <button onClick={shareFamily} style={{ width: "100%", padding: "13px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            💬 Compartilhar no WhatsApp
-          </button>
+          <button onClick={shareFamily} style={{ width: "100%", padding: "13px", borderRadius: 14, border: "none", background: "linear-gradient(135deg,#25d366,#128c7e)", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>💬 Compartilhar no WhatsApp</button>
         </div>
         {members.map((m, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "rgba(255,255,255,.7)", borderRadius: 12, marginBottom: 8, border: "1px solid rgba(210,170,110,.25)" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#b85e22,#8f4214)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 16 }}>{m.name[0].toUpperCase()}</div>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg,${memberColor(m.name)},${memberColor(m.name)}99)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 16 }}>{m.name[0].toUpperCase()}</div>
             <span style={{ fontFamily: "Georgia,serif", fontSize: 16, color: "#1e1006" }}>{m.name}</span>
             {m.joined_at && <span style={{ marginLeft: "auto", fontSize: 11, color: "#9a6c3a" }}>{formatDate(m.joined_at)}</span>}
           </div>
@@ -416,12 +371,246 @@ function MembersModal({ members, family, onClose, onToast }) {
   );
 }
 
+// ── Add Appointment Modal ─────────────────────────────────────────────────────
+function AddAppointmentModal({ members, contacts, currentMember, familyCode, onSave, onClose, initialDate }) {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState(initialDate || new Date().toISOString().split("T")[0]);
+  const [time, setTime] = useState("");
+  const [forMember, setForMember] = useState(currentMember);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const valid = title.trim() && date && forMember;
+
+  async function handleSave() {
+    if (!valid || saving) return;
+    setSaving(true);
+    const contact = contacts.find(c => c.id === selectedContact);
+    await onSave({
+      title: title.trim(), date, time, member_name: forMember,
+      added_by: currentMember, family_code: familyCode,
+      contact_id: selectedContact || null,
+      contact_name: contact?.name || null,
+      contact_emoji: contact?.emoji || null,
+      notes: notes.trim() || null
+    });
+    setSaving(false);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(10,5,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: "#fdf6ed", borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
+        <div style={{ width: 36, height: 4, background: "#ddd", borderRadius: 4, margin: "0 auto 20px" }} />
+        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: "#1e1006", marginBottom: 18, fontWeight: 700 }}>📅 Novo compromisso</h2>
+
+        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título do compromisso *" style={fS} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 11 }}>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ ...fS, marginBottom: 0 }} />
+          <input type="time" value={time} onChange={e => setTime(e.target.value)} placeholder="Horário" style={{ ...fS, marginBottom: 0 }} />
+        </div>
+
+        <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8, marginTop: 4 }}>De quem é este compromisso?</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+          {members.map((m, i) => (
+            <button key={i} onClick={() => setForMember(m.name)} style={{ padding: "8px 14px", borderRadius: 20, border: forMember === m.name ? `2px solid ${memberColor(m.name)}` : "2px solid #e0c9a8", background: forMember === m.name ? `${memberColor(m.name)}18` : "#fff", cursor: "pointer", fontSize: 13, fontWeight: forMember === m.name ? 700 : 400, color: forMember === m.name ? memberColor(m.name) : "#7a5228", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", background: memberColor(m.name), display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 10, fontWeight: 800 }}>{m.name[0].toUpperCase()}</span>
+              {m.name}
+            </button>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Contato relacionado (opcional)</p>
+        <div style={{ marginBottom: 14, maxHeight: 160, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6 }}>
+          <button onClick={() => setSelectedContact(null)} style={{ padding: "10px 14px", borderRadius: 12, border: selectedContact === null ? "2px solid #b85e22" : "2px solid #e0c9a8", background: selectedContact === null ? "rgba(184,94,34,.08)" : "#fff", cursor: "pointer", fontSize: 13, color: "#7a5228", textAlign: "left" }}>
+            Nenhum contato específico
+          </button>
+          {contacts.map(c => (
+            <button key={c.id} onClick={() => setSelectedContact(c.id)} style={{ padding: "10px 14px", borderRadius: 12, border: selectedContact === c.id ? "2px solid #b85e22" : "2px solid #e0c9a8", background: selectedContact === c.id ? "rgba(184,94,34,.08)" : "#fff", cursor: "pointer", fontSize: 13, color: "#7a5228", textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 20 }}>{c.emoji}</span>
+              <div>
+                <div style={{ fontWeight: selectedContact === c.id ? 700 : 400, color: "#1e1006" }}>{c.name}</div>
+                {c.label && <div style={{ fontSize: 11, color: "#9a6c3a" }}>{c.label}</div>}
+              </div>
+              {selectedContact === c.id && <span style={{ marginLeft: "auto", color: "#b85e22" }}>✓</span>}
+            </button>
+          ))}
+        </div>
+
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Observações (opcional)" style={{ ...fS, resize: "vertical", minHeight: 70 }} />
+
+        <button onClick={handleSave} disabled={!valid || saving} style={{ width: "100%", padding: "16px", borderRadius: 16, border: "none", background: valid ? "linear-gradient(135deg,#b85e22,#8f4214)" : "#e0d0bc", color: valid ? "#fff" : "#bba07a", fontFamily: "Georgia,serif", fontWeight: 700, fontSize: 17, cursor: valid ? "pointer" : "not-allowed" }}>
+          {saving ? "Salvando..." : "Salvar compromisso"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Calendar Screen ───────────────────────────────────────────────────────────
+function CalendarScreen({ appointments, members, contacts, currentMember, familyCode, onAdd, onDelete, onToast }) {
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [filterMember, setFilterMember] = useState("todos");
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
+  const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const dayNames = ["D","S","T","Q","Q","S","S"];
+
+  function apptsByDay(day) {
+    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    return appointments.filter(a => a.date === dateStr && (filterMember === "todos" || a.member_name === filterMember));
+  }
+
+  function prevMonth() { if (viewMonth === 0) { setViewYear(y => y-1); setViewMonth(11); } else setViewMonth(m => m-1); setSelectedDay(null); }
+  function nextMonth() { if (viewMonth === 11) { setViewYear(y => y+1); setViewMonth(0); } else setViewMonth(m => m+1); setSelectedDay(null); }
+
+  const selectedDateStr = selectedDay ? `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(selectedDay).padStart(2,"0")}` : null;
+  const selectedAppts = selectedDay ? apptsByDay(selectedDay) : [];
+
+  const upcomingAppts = appointments
+    .filter(a => {
+      const d = new Date(a.date + "T00:00:00");
+      return d >= new Date(today.toDateString()) && (filterMember === "todos" || a.member_name === filterMember);
+    })
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time || "").localeCompare(b.time || ""))
+    .slice(0, 5);
+
+  return (
+    <div style={{ paddingBottom: 110 }}>
+      {/* Filtro por membro */}
+      <div style={{ padding: "12px 14px 0", overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 8, paddingBottom: 4 }}>
+          <button onClick={() => setFilterMember("todos")} style={{ padding: "6px 14px", borderRadius: 20, border: filterMember === "todos" ? "2px solid #b85e22" : "2px solid #e0c9a8", background: filterMember === "todos" ? "rgba(184,94,34,.1)" : "#fff", cursor: "pointer", fontSize: 12, fontWeight: filterMember === "todos" ? 700 : 400, color: filterMember === "todos" ? "#b85e22" : "#7a5228", whiteSpace: "nowrap" }}>Todos</button>
+          {members.map((m, i) => (
+            <button key={i} onClick={() => setFilterMember(m.name)} style={{ padding: "6px 14px", borderRadius: 20, border: filterMember === m.name ? `2px solid ${memberColor(m.name)}` : "2px solid #e0c9a8", background: filterMember === m.name ? `${memberColor(m.name)}18` : "#fff", cursor: "pointer", fontSize: 12, fontWeight: filterMember === m.name ? 700 : 400, color: filterMember === m.name ? memberColor(m.name) : "#7a5228", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 16, height: 16, borderRadius: "50%", background: memberColor(m.name), display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800 }}>{m.name[0].toUpperCase()}</span>
+              {m.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Calendar header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 8px" }}>
+        <button onClick={prevMonth} style={{ background: "rgba(184,94,34,.1)", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 16, cursor: "pointer", color: "#b85e22" }}>‹</button>
+        <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 800, color: "#1e1006" }}>{monthNames[viewMonth]} {viewYear}</h2>
+        <button onClick={nextMonth} style={{ background: "rgba(184,94,34,.1)", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 16, cursor: "pointer", color: "#b85e22" }}>›</button>
+      </div>
+
+      {/* Day names */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", padding: "0 14px", gap: 2, marginBottom: 4 }}>
+        {dayNames.map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 11, color: "#9a6c3a", fontWeight: 700, padding: "4px 0" }}>{d}</div>)}
+      </div>
+
+      {/* Days grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", padding: "0 14px", gap: 3 }}>
+        {Array.from({ length: firstDayOfWeek }).map((_, i) => <div key={`e${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const appts = apptsByDay(day);
+          const isToday = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+          const isSelected = selectedDay === day;
+          return (
+            <div key={day} onClick={() => setSelectedDay(isSelected ? null : day)} style={{ aspectRatio: "1", borderRadius: 12, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", background: isSelected ? "#b85e22" : isToday ? "rgba(184,94,34,.12)" : "rgba(255,255,255,.6)", border: isToday && !isSelected ? "2px solid #b85e22" : "2px solid transparent", position: "relative", WebkitTapHighlightColor: "transparent" }}>
+              <span style={{ fontSize: 13, fontWeight: isToday || isSelected ? 800 : 400, color: isSelected ? "#fff" : isToday ? "#b85e22" : "#1e1006" }}>{day}</span>
+              {appts.length > 0 && (
+                <div style={{ display: "flex", gap: 2, marginTop: 2, flexWrap: "wrap", justifyContent: "center", maxWidth: 28 }}>
+                  {appts.slice(0, 3).map((a, idx) => <div key={idx} style={{ width: 5, height: 5, borderRadius: "50%", background: isSelected ? "rgba(255,255,255,.8)" : memberColor(a.member_name) }} />)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Selected day appointments */}
+      {selectedDay && (
+        <div style={{ margin: "16px 14px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#1e1006", fontFamily: "Georgia,serif" }}>
+              {selectedDay} de {monthNames[viewMonth]}
+            </p>
+            <button onClick={() => setShowAdd(true)} style={{ background: "#b85e22", border: "none", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: "#fff", cursor: "pointer", fontWeight: 700 }}>+ Novo</button>
+          </div>
+          {selectedAppts.length === 0
+            ? <div style={{ textAlign: "center", padding: "24px 0", background: "rgba(255,255,255,.6)", borderRadius: 16 }}>
+                <p style={{ fontSize: 13, color: "#b09070", fontStyle: "italic", fontFamily: "Georgia,serif" }}>Nenhum compromisso neste dia</p>
+              </div>
+            : selectedAppts.map(a => <AppointmentCard key={a.id} appt={a} onDelete={onDelete} />)}
+        </div>
+      )}
+
+      {/* Próximos compromissos */}
+      {!selectedDay && upcomingAppts.length > 0 && (
+        <div style={{ margin: "20px 14px 0" }}>
+          <p style={{ fontSize: 11, color: "#9a6c3a", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>📌 Próximos compromissos</p>
+          {upcomingAppts.map(a => <AppointmentCard key={a.id} appt={a} onDelete={onDelete} showDate />)}
+        </div>
+      )}
+
+      {/* FAB */}
+      <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: "0 8px 28px rgba(184,94,34,.5)", WebkitTapHighlightColor: "transparent" }}>
+        <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Compromisso
+      </button>
+
+      {showAdd && (
+        <AddAppointmentModal
+          members={members} contacts={contacts} currentMember={currentMember}
+          familyCode={familyCode} initialDate={selectedDateStr}
+          onSave={async (data) => { await onAdd(data); setShowAdd(false); }}
+          onClose={() => setShowAdd(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function AppointmentCard({ appt, onDelete, showDate }) {
+  const [confirm, setConfirm] = useState(false);
+  const color = memberColor(appt.member_name);
+  const dateStr = showDate ? new Date(appt.date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : null;
+  return (
+    <div style={{ background: "rgba(255,255,255,.85)", borderRadius: 14, padding: "12px 14px", marginBottom: 8, border: "1px solid rgba(210,170,110,.3)", borderLeft: `4px solid ${color}`, position: "relative" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            {showDate && <span style={{ fontSize: 11, color: "#9a6c3a", fontWeight: 700 }}>{dateStr}</span>}
+            {appt.time && <span style={{ fontSize: 11, background: "rgba(184,94,34,.1)", color: "#b85e22", borderRadius: 8, padding: "1px 7px", fontWeight: 700 }}>🕐 {appt.time}</span>}
+          </div>
+          <p style={{ fontFamily: "Georgia,serif", fontSize: 15, fontWeight: 700, color: "#1e1006", lineHeight: 1.3 }}>{appt.title}</p>
+          {appt.contact_name && <p style={{ fontSize: 12, color: "#7a5228", marginTop: 3 }}>{appt.contact_emoji} com {appt.contact_name}</p>}
+          {appt.notes && <p style={{ fontSize: 12, color: "#9a6c3a", marginTop: 3, fontStyle: "italic" }}>{appt.notes}</p>}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
+            <div style={{ width: 18, height: 18, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800 }}>{appt.member_name[0].toUpperCase()}</div>
+            <span style={{ fontSize: 11, color, fontWeight: 600 }}>{appt.member_name}</span>
+            {appt.added_by !== appt.member_name && <span style={{ fontSize: 11, color: "#b09070" }}>· adicionado por {appt.added_by}</span>}
+          </div>
+        </div>
+        {!confirm
+          ? <button onClick={() => setConfirm(true)} style={{ background: "none", border: "none", fontSize: 13, cursor: "pointer", opacity: .3, color: "#1e1006", padding: 2, flexShrink: 0 }}>✕</button>
+          : <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+              <button onClick={() => onDelete(appt.id)} style={{ background: "#c0392b", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Sim</button>
+              <button onClick={() => setConfirm(false)} style={{ background: "#bbb", border: "none", borderRadius: 8, fontSize: 11, padding: "4px 8px", cursor: "pointer" }}>Não</button>
+            </div>}
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
   const [screen, setScreen] = useState("home");
+  const [tab, setTab] = useState("contacts");
   const [family, setFamily] = useState(null);
   const [currentMember, setCurrentMember] = useState("");
   const [contacts, setContacts] = useState([]);
   const [members, setMembers] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [nudges, setNudges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState("");
@@ -445,10 +634,7 @@ export default function App() {
 
   const checkNudges = useCallback(async () => {
     if (!currentMember || !family) return;
-    const { data } = await supabase.from("nudges")
-      .select("*").eq("family_code", family.code)
-      .eq("to_member", currentMember).eq("seen", false)
-      .order("created_at", { ascending: true });
+    const { data } = await supabase.from("nudges").select("*").eq("family_code", family.code).eq("to_member", currentMember).eq("seen", false).order("created_at", { ascending: true });
     if (data && data.length > 0) setNudges(data);
   }, [currentMember, family]);
 
@@ -458,12 +644,11 @@ export default function App() {
       try {
         const { familyCode, memberNameSaved } = JSON.parse(saved);
         if (familyCode) {
-          setLoadingText("Carregando sua família...");
-          setLoading(true);
+          setLoadingText("Carregando sua família..."); setLoading(true);
           supabase.from("families").select("*").eq("code", familyCode).single()
             .then(({ data: f }) => {
               if (f) { setFamily(f); setCurrentMember(memberNameSaved || ""); return fetchFamilyData(familyCode); }
-              else { localStorage.removeItem("df_session"); }
+              else localStorage.removeItem("df_session");
             })
             .then(() => { setScreen("family"); setLoading(false); setLoadingText(""); })
             .catch(() => { setLoading(false); setLoadingText(""); });
@@ -486,19 +671,16 @@ export default function App() {
     setNudges(prev => prev.filter(n => n.id !== id));
   }
 
-  function saveSession(f, name) {
-    localStorage.setItem("df_session", JSON.stringify({ familyCode: f.code, memberNameSaved: name }));
-  }
-
+  function saveSession(f, name) { localStorage.setItem("df_session", JSON.stringify({ familyCode: f.code, memberNameSaved: name })); }
   function toggleLayout(l) { setLayout(l); localStorage.setItem("df_layout", l); }
 
   async function fetchFamilyData(code) {
-    const [{ data: cs }, { data: ms }] = await Promise.all([
+    const [{ data: cs }, { data: ms }, { data: as }] = await Promise.all([
       supabase.from("contacts").select("*").eq("family_code", code).order("created_at"),
-      supabase.from("members").select("*").eq("family_code", code).order("joined_at")
+      supabase.from("members").select("*").eq("family_code", code).order("joined_at"),
+      supabase.from("appointments").select("*").eq("family_code", code).order("date")
     ]);
-    setContacts(cs || []);
-    setMembers(ms || []);
+    setContacts(cs || []); setMembers(ms || []); setAppointments(as || []);
   }
 
   async function createFamily() {
@@ -525,9 +707,7 @@ export default function App() {
     const hashed = await hashPassword(joinPass.trim());
     if (f.password !== hashed) { setLoading(false); setLoadingText(""); setErr("Senha incorreta 🔒"); return; }
     const { data: existing } = await supabase.from("members").select("*").eq("family_code", code).eq("name", yourName.trim());
-    if (!existing || existing.length === 0) {
-      await supabase.from("members").insert({ family_code: code, name: yourName.trim() });
-    }
+    if (!existing || existing.length === 0) await supabase.from("members").insert({ family_code: code, name: yourName.trim() });
     setFamily(f); setCurrentMember(yourName.trim()); saveSession(f, yourName.trim());
     await fetchFamilyData(code);
     setScreen("family"); setLoading(false); setLoadingText("");
@@ -544,14 +724,12 @@ export default function App() {
     await supabase.from("contacts").update({ name: updated.name, label: updated.label, establishment: updated.establishment, phone: updated.phone, emoji: updated.emoji }).eq("id", updated.id);
     const newContact = { ...selectedContact, ...updated };
     setContacts(contacts.map(c => c.id === updated.id ? newContact : c));
-    setEditingContact(null); setSelectedContact(newContact);
-    setToast("Contato atualizado! ✅");
+    setEditingContact(null); setSelectedContact(newContact); setToast("Contato atualizado! ✅");
   }
 
   async function deleteContact(id) {
     await supabase.from("contacts").delete().eq("id", id);
-    setContacts(contacts.filter(c => c.id !== id));
-    setToast("Contato removido");
+    setContacts(contacts.filter(c => c.id !== id)); setToast("Contato removido");
   }
 
   function updateContact(updated) {
@@ -559,10 +737,21 @@ export default function App() {
     setSelectedContact(updated);
   }
 
+  async function addAppointment(data) {
+    const { data: saved } = await supabase.from("appointments").insert(data).select().single();
+    if (saved) setAppointments(prev => [...prev, saved].sort((a, b) => a.date.localeCompare(b.date)));
+    setToast("Compromisso adicionado! 📅");
+  }
+
+  async function deleteAppointment(id) {
+    await supabase.from("appointments").delete().eq("id", id);
+    setAppointments(prev => prev.filter(a => a.id !== id));
+    setToast("Compromisso removido");
+  }
+
   function reset() {
-    localStorage.removeItem("df_session");
-    clearInterval(nudgeInterval.current);
-    setFamily(null); setContacts([]); setMembers([]); setNudges([]);
+    localStorage.removeItem("df_session"); clearInterval(nudgeInterval.current);
+    setFamily(null); setContacts([]); setMembers([]); setNudges([]); setAppointments([]);
     setCurrentMember(""); setScreen("home");
     setNewFamilyName(""); setNewPass(""); setJoinCode(""); setJoinPass("");
     setYourName(""); setMemberName(""); setErr(""); setSearch("");
@@ -574,12 +763,17 @@ export default function App() {
     (c.establishment || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  // Today's appointments count for badge
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayAppts = appointments.filter(a => a.date === todayStr).length;
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
         input:focus, textarea:focus { border-color:#b85e22 !important; box-shadow:0 0 0 3px rgba(184,94,34,.12); }
+        input[type="date"], input[type="time"] { color:#1e1006; }
         ::-webkit-scrollbar { width:0; }
         body { overscroll-behavior:none; }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
@@ -588,13 +782,12 @@ export default function App() {
 
         <NudgeBanner nudges={nudges} onDismiss={dismissNudge} />
 
+        {/* HOME */}
         {screen === "home" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ textAlign: "center", marginBottom: 44 }}>
               <div style={{ fontSize: 72, marginBottom: 8 }}>🏡</div>
-              <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 48, fontWeight: 800, color: "#1e1006", letterSpacing: "-1.5px", lineHeight: .95 }}>
-                Da<span style={{ color: "#b85e22" }}>Família</span>
-              </h1>
+              <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 48, fontWeight: 800, color: "#1e1006", letterSpacing: "-1.5px", lineHeight: .95 }}>Da<span style={{ color: "#b85e22" }}>Família</span></h1>
               <p style={{ color: "#7a5228", fontSize: 14, margin: "14px auto 0", lineHeight: 1.65, maxWidth: 260 }}>A agenda de contatos da sua família, preservada de geração em geração.</p>
             </div>
             <div style={{ width: 44, height: 2, background: "linear-gradient(90deg,transparent,#b85e22,transparent)", marginBottom: 40 }} />
@@ -602,10 +795,10 @@ export default function App() {
               <button onClick={() => setScreen("create")} style={{ padding: "18px 24px", borderRadius: 18, border: "none", background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, cursor: "pointer", boxShadow: "0 8px 24px rgba(184,94,34,.45)", WebkitTapHighlightColor: "transparent" }}>✨ Criar minha família</button>
               <button onClick={() => { setScreen("join"); setErr(""); }} style={{ padding: "18px 24px", borderRadius: 18, border: "2px solid #ddc9a4", background: "rgba(255,255,255,.75)", color: "#5a3818", fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>🔗 Entrar em uma família</button>
             </div>
-            <p style={{ marginTop: 32, fontSize: 12, color: "#b09070", textAlign: "center", lineHeight: 1.7, maxWidth: 230 }}>Nunca mais vai no mecânico errado 😄<br />Compartilhe o código com a família.</p>
           </div>
         )}
 
+        {/* CREATE */}
         {screen === "create" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ width: "100%", maxWidth: 360 }}>
@@ -621,6 +814,7 @@ export default function App() {
           </div>
         )}
 
+        {/* JOIN */}
         {screen === "join" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "32px 24px" }}>
             <div style={{ width: "100%", maxWidth: 360 }}>
@@ -636,8 +830,10 @@ export default function App() {
           </div>
         )}
 
+        {/* FAMILY */}
         {screen === "family" && family && (
           <div style={{ minHeight: "100vh", paddingTop: nudges.length > 0 ? 160 : 0 }}>
+            {/* Header */}
             <div style={{ padding: "18px 16px 12px", background: "rgba(253,247,238,.97)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: "1px solid rgba(210,175,120,.25)", position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div>
@@ -651,53 +847,68 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ display: "flex", background: "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2 }}>
-                    <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? "#fff" : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.12)" : "none" }}>⊞</button>
-                    <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? "#fff" : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.12)" : "none" }}>☰</button>
-                  </div>
+                  {tab === "contacts" && (
+                    <div style={{ display: "flex", background: "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2 }}>
+                      <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? "#fff" : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.12)" : "none" }}>⊞</button>
+                      <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? "#fff" : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.12)" : "none" }}>☰</button>
+                    </div>
+                  )}
                   <button onClick={reset} style={{ background: "none", border: "1.5px solid #ddc9a4", borderRadius: 20, padding: "6px 12px", fontSize: 12, color: "#7a5228", cursor: "pointer" }}>Sair</button>
                 </div>
               </div>
-              <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5 }}>🔍</span>
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar contato..."
-                  style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 12, border: "1.5px solid #e0c9a8", background: "rgba(255,255,255,.9)", fontSize: "15px", color: "#1e1006", outline: "none", boxSizing: "border-box" }} />
-              </div>
-            </div>
-
-            <div style={{ padding: "16px 14px 110px" }}>
-              {filtered.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "64px 0" }}>
-                  <div style={{ fontSize: 56, marginBottom: 14 }}>{search ? "🔍" : "📒"}</div>
-                  <p style={{ fontFamily: "Georgia,serif", fontSize: 18, color: "#7a5228", fontStyle: "italic" }}>{search ? "Nenhum contato encontrado" : "A agenda está vazia"}</p>
-                  <p style={{ fontSize: 13, color: "#b09070", marginTop: 8, lineHeight: 1.6 }}>{search ? "Tente outro termo" : "Adicione o mecânico do pai,\no médico da família..."}</p>
-                </div>
-              ) : layout === "grid" ? (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12 }}>
-                  {filtered.map(c => <ContactCardGrid key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} />)}
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {filtered.map(c => <ContactCardList key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} />)}
+              {tab === "contacts" && (
+                <div style={{ position: "relative" }}>
+                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 15, opacity: .5 }}>🔍</span>
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar contato..." style={{ width: "100%", padding: "10px 14px 10px 36px", borderRadius: 12, border: "1.5px solid #e0c9a8", background: "rgba(255,255,255,.9)", fontSize: "15px", color: "#1e1006", outline: "none", boxSizing: "border-box" }} />
                 </div>
               )}
             </div>
 
-            <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: "0 8px 28px rgba(184,94,34,.5)", WebkitTapHighlightColor: "transparent" }}>
-              <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Novo contato
-            </button>
+            {/* Tab bar */}
+            <div style={{ display: "flex", background: "rgba(253,247,238,.97)", borderBottom: "1px solid rgba(210,175,120,.2)", position: "sticky", top: nudges.length > 0 ? 230 : 80, zIndex: 99 }}>
+              <button onClick={() => setTab("contacts")} style={{ flex: 1, padding: "12px", background: "none", border: "none", borderBottom: tab === "contacts" ? "2.5px solid #b85e22" : "2.5px solid transparent", color: tab === "contacts" ? "#b85e22" : "#9a6c3a", fontWeight: tab === "contacts" ? 700 : 400, fontSize: 13, cursor: "pointer" }}>📒 Contatos</button>
+              <button onClick={() => setTab("calendar")} style={{ flex: 1, padding: "12px", background: "none", border: "none", borderBottom: tab === "calendar" ? "2.5px solid #b85e22" : "2.5px solid transparent", color: tab === "calendar" ? "#b85e22" : "#9a6c3a", fontWeight: tab === "calendar" ? 700 : 400, fontSize: 13, cursor: "pointer", position: "relative" }}>
+                📅 Calendário
+                {todayAppts > 0 && <span style={{ position: "absolute", top: 8, right: "calc(50% - 30px)", background: "#b85e22", color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{todayAppts}</span>}
+              </button>
+            </div>
+
+            {/* Contacts tab */}
+            {tab === "contacts" && (
+              <div style={{ padding: "16px 14px 110px" }}>
+                {filtered.length === 0
+                  ? <div style={{ textAlign: "center", padding: "64px 0" }}>
+                      <div style={{ fontSize: 56, marginBottom: 14 }}>{search ? "🔍" : "📒"}</div>
+                      <p style={{ fontFamily: "Georgia,serif", fontSize: 18, color: "#7a5228", fontStyle: "italic" }}>{search ? "Nenhum contato encontrado" : "A agenda está vazia"}</p>
+                      <p style={{ fontSize: 13, color: "#b09070", marginTop: 8, lineHeight: 1.6 }}>{search ? "Tente outro termo" : "Adicione o mecânico do pai,\no médico da família..."}</p>
+                    </div>
+                  : layout === "grid"
+                    ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12 }}>{filtered.map(c => <ContactCardGrid key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} />)}</div>
+                    : <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{filtered.map(c => <ContactCardList key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} />)}</div>}
+                <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: "linear-gradient(135deg,#b85e22,#8f4214)", color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: "0 8px 28px rgba(184,94,34,.5)", WebkitTapHighlightColor: "transparent" }}>
+                  <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Novo contato
+                </button>
+              </div>
+            )}
+
+            {/* Calendar tab */}
+            {tab === "calendar" && (
+              <CalendarScreen
+                appointments={appointments} members={members} contacts={contacts}
+                currentMember={currentMember} familyCode={family.code}
+                onAdd={addAppointment} onDelete={deleteAppointment} onToast={setToast}
+              />
+            )}
           </div>
         )}
 
         {loading && <Loader text={loadingText} />}
-        {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} />}
+        {showAdd && tab === "contacts" && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} />}
         {selectedContact && !editingContact && (
           <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} />
         )}
-        {editingContact && (
-          <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} />
-        )}
+        {editingContact && <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} />}
         {toast && <Toast msg={toast} onClose={() => setToast(null)} />}
       </div>
     </>

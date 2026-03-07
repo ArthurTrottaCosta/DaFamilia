@@ -895,6 +895,8 @@ export default function App() {
           .desktop-panel { border-right:1px solid rgba(150,100,50,.15); }
           .mobile-tab-bar { display:none !important; }
           .desktop-always-show { display:block !important; }
+          .desktop-new-btn { display:block !important; }
+          .mobile-fab { display:none !important; }
         }
       `}</style>
       <div style={{ minHeight: "100vh", background: t.bg, fontFamily: "system-ui,sans-serif", maxWidth: 1200, margin: "0 auto" }}>
@@ -1002,6 +1004,12 @@ export default function App() {
             <div className="desktop-split" style={{ display: "block" }}>
               {/* Contacts panel */}
               <div className="desktop-panel desktop-always-show" style={{ display: tab === "contacts" ? "block" : "none" }}>
+                {/* Desktop inline add button */}
+                <div className="desktop-new-btn" style={{ display: "none", padding: "12px 14px 0" }}>
+                  <button onClick={() => setShowAdd(true)} style={{ width: "100%", padding: "13px", borderRadius: 14, border: `2px dashed ${t.accent}55`, background: `${t.accent}08`, color: t.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>+</span> Novo contato
+                  </button>
+                </div>
                 <div style={{ padding: "16px 14px 110px" }}>
                   {filtered.length === 0
                     ? <div style={{ textAlign: "center", padding: "64px 0" }}>
@@ -1013,7 +1021,7 @@ export default function App() {
                       ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12 }}>{filtered.map(c => <ContactCardGrid key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} dark={dark} />)}</div>
                       : <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{filtered.map(c => <ContactCardList key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} dark={dark} />)}</div>}
                 </div>
-                <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: `0 8px 28px ${t.accent}80`, WebkitTapHighlightColor: "transparent" }}>
+                <button className="mobile-fab" onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: `0 8px 28px ${t.accent}80`, WebkitTapHighlightColor: "transparent" }}>
                   <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Novo contato
                 </button>
               </div>

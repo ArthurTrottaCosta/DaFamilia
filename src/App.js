@@ -194,7 +194,7 @@ function EmojiPicker({ value, onChange, dark }) {
 }
 
 // ── Settings Modal ────────────────────────────────────────────────────────────
-function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate }) {
+function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate, onShowHowTo }) {
   const [editName, setEditName] = useState(false);
   const [newName, setNewName] = useState(family.name);
   const [editPass, setEditPass] = useState(false);
@@ -225,17 +225,17 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
-        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 20, fontWeight: 700 }}>⚙️ Configurações</h2>
+        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 20, fontWeight: 700 }}>⚙️ Menu</h2>
 
-        {/* Dark mode */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: t.card, borderRadius: 16, padding: "16px 18px", marginBottom: 12, border: `1px solid ${t.cardBorder}` }}>
-          <div>
-            <p style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 700, color: t.text }}>🌙 Modo escuro</p>
-            <p style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Alterna entre claro e escuro</p>
-          </div>
-          <div onClick={onToggleDark} style={{ width: 48, height: 27, borderRadius: 14, background: dark ? t.accent : t.inputBorder, cursor: "pointer", position: "relative", transition: "background .2s" }}>
-            <div style={{ position: "absolute", top: 3, left: dark ? 23 : 3, width: 21, height: 21, borderRadius: "50%", background: "#fff", transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,.3)" }} />
-          </div>
+        {/* Quick actions */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+          <button onClick={() => { onToggleDark(); }} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 24 }}>{dark ? "☀️" : "🌙"}</span>{dark ? "Modo claro" : "Modo escuro"}
+          </button>
+          <button onClick={() => { onClose(); setTimeout(onShowHowTo, 150); }} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
+            data-menu-howto="1">
+            <span style={{ fontSize: 24 }}>❓</span>Como usar
+          </button>
         </div>
 
         {/* Family name */}
@@ -334,7 +334,10 @@ function EditModal({ contact, onSave, onClose, dark }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1050, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
         <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
-        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 18, fontWeight: 700 }}>Editar contato</h2>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>Editar contato</h2>
+          <button onClick={onClose} style={{ background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)", border: "none", borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer" }}>✕ Fechar</button>
+        </div>
         <EmojiPicker value={emoji} onChange={setEmoji} dark={dark} />
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Nome *" style={fS2} />
         <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Tipo (ex: Mecânico, Médico...)" style={fS2} />
@@ -486,8 +489,13 @@ function AddModal({ onSave, onClose, dark }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
-        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 18, fontWeight: 700 }}>Novo contato da família</h2>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+          <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, marginLeft: "auto", marginRight: "auto" }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>Novo contato da família</h2>
+          <button onClick={onClose} style={{ background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)", border: "none", borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer" }}>✕ Fechar</button>
+        </div>
         <EmojiPicker value={emoji} onChange={setEmoji} dark={dark} />
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Nome *" style={fS2} />
         <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Tipo (ex: Mecânico, Médico...)" style={fS2} />
@@ -515,7 +523,10 @@ function AddAppointmentModal({ members, contacts, currentMember, familyCode, onS
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
         <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
-        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 18, fontWeight: 700 }}>📅 Novo compromisso</h2>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>📅 Novo compromisso</h2>
+          <button onClick={onClose} style={{ background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)", border: "none", borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer" }}>✕ Fechar</button>
+        </div>
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título do compromisso *" style={fS2} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 11 }}>
           <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ ...fS2, marginBottom: 0 }} />
@@ -967,10 +978,8 @@ export default function App() {
                       <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
                     </div>
                   )}
-                  <button onClick={toggleDark} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "5px 9px", fontSize: 14, cursor: "pointer" }}>{dark ? "☀️" : "🌙"}</button>
-                  <button onClick={() => setShowSettings(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "5px 9px", fontSize: 14, cursor: "pointer" }}>⚙️</button>
-                  <button onClick={() => setShowHowTo(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "5px 9px", fontSize: 14, cursor: "pointer" }}>❓</button>
-                  <button onClick={reset} style={{ background: "none", border: `1.5px solid ${t.inputBorder}`, borderRadius: 20, padding: "5px 10px", fontSize: 12, color: t.textSub, cursor: "pointer" }}>Sair</button>
+                  <button onClick={() => setShowSettings(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>⚙️ <span style={{ fontSize: 12 }}>Menu</span></button>
+                  <button onClick={reset} style={{ background: "none", border: `1.5px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer" }}>Sair</button>
                 </div>
               </div>
               {tab === "contacts" && (
@@ -1004,7 +1013,7 @@ export default function App() {
                       ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12 }}>{filtered.map(c => <ContactCardGrid key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} dark={dark} />)}</div>
                       : <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{filtered.map(c => <ContactCardList key={c.id} contact={c} onDelete={() => deleteContact(c.id)} onTap={() => setSelectedContact(c)} dark={dark} />)}</div>}
                 </div>
-                <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: tab === "contacts" ? "flex" : "none", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: `0 8px 28px ${t.accent}80`, WebkitTapHighlightColor: "transparent" }}>
+                <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: `0 8px 28px ${t.accent}80`, WebkitTapHighlightColor: "transparent" }}>
                   <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Novo contato
                 </button>
               </div>
@@ -1017,9 +1026,9 @@ export default function App() {
         )}
 
         {loading && <Loader text={loadingText} dark={dark} />}
-        {showAdd && tab === "contacts" && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} dark={dark} />}
+        {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} dark={dark} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} dark={dark} />}
-        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} />}
+        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} />}
         {showHowTo && <HowToModal onClose={() => { setShowHowTo(false); localStorage.setItem("df_howto_done", "1"); }} dark={dark} />}
         {selectedContact && !editingContact && <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} onPin={togglePin} dark={dark} />}
         {editingContact && <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} dark={dark} />}

@@ -962,29 +962,24 @@ export default function App() {
           <div style={{ minHeight: "100vh", paddingTop: nudges.length > 0 ? 160 : 0 }}>
             {/* Header */}
             <div style={{ padding: "12px 14px 0", background: t.header, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid ${t.cardBorder}`, position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                {/* Left: name + code */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 18, flexShrink: 0 }}>🏡</span>
-                    <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 17, fontWeight: 800, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{family.name}</h1>
+              {/* Row 1: name + single menu button */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>🏡</span>
+                <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 800, color: t.text, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{family.name}</h1>
+                <button onClick={() => setShowSettings(true)} style={{ flexShrink: 0, background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>⚙️ Menu</button>
+              </div>
+              {/* Row 2: code + members + layout toggle + sair */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "nowrap" }}>
+                <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 10, fontWeight: 800, letterSpacing: "2px", color: t.accent, background: t.pill, padding: "3px 9px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>{family.code} 📋</span>
+                <button onClick={() => setShowMembers(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "3px 9px", fontSize: 11, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>👥 {members.length}</button>
+                <div style={{ flex: 1 }} />
+                {tab === "contacts" && (
+                  <div style={{ display: "flex", background: dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2, flexShrink: 0 }}>
+                    <button onClick={() => toggleLayout("grid")} style={{ padding: "4px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>⊞</button>
+                    <button onClick={() => toggleLayout("list")} style={{ padding: "4px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                    <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 10, fontWeight: 800, letterSpacing: "2px", color: t.accent, background: t.pill, padding: "2px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>{family.code} 📋</span>
-                    <button onClick={() => setShowMembers(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "1px 8px", fontSize: 11, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>👥 {members.length}</button>
-                  </div>
-                </div>
-                {/* Right: fixed-width action buttons */}
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                  {tab === "contacts" && (
-                    <div style={{ display: "flex", background: dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2 }}>
-                      <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>⊞</button>
-                      <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
-                    </div>
-                  )}
-                  <button onClick={() => setShowSettings(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>⚙️ Menu</button>
-                  <button onClick={reset} style={{ background: "none", border: `1.5px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 10px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>Sair</button>
-                </div>
+                )}
+                <button onClick={reset} style={{ flexShrink: 0, background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "3px 10px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>Sair</button>
               </div>
               {tab === "contacts" && (
                 <div style={{ position: "relative", paddingBottom: 0 }}>
@@ -995,9 +990,9 @@ export default function App() {
               {/* Tab bar */}
               <div className="mobile-tab-bar" style={{ display: "flex", marginTop: 10 }}>
                 <button onClick={() => setTab("contacts")} style={{ flex: 1, padding: "11px", background: "none", border: "none", borderBottom: tab === "contacts" ? `2.5px solid ${t.accent}` : "2.5px solid transparent", color: tab === "contacts" ? t.accent : t.textMuted, fontWeight: tab === "contacts" ? 700 : 400, fontSize: 13, cursor: "pointer" }}>📒 Contatos</button>
-                <button onClick={() => setTab("calendar")} style={{ flex: 1, padding: "11px", background: "none", border: "none", borderBottom: tab === "calendar" ? `2.5px solid ${t.accent}` : "2.5px solid transparent", color: tab === "calendar" ? t.accent : t.textMuted, fontWeight: tab === "calendar" ? 700 : 400, fontSize: 13, cursor: "pointer", position: "relative" }}>
+                <button onClick={() => setTab("calendar")} style={{ flex: 1, padding: "11px", background: "none", border: "none", borderBottom: tab === "calendar" ? `2.5px solid ${t.accent}` : "2.5px solid transparent", color: tab === "calendar" ? t.accent : t.textMuted, fontWeight: tab === "calendar" ? 700 : 400, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
                   📅 Calendário
-                  {todayAppts > 0 && <span style={{ position: "absolute", top: 8, right: "calc(50% - 36px)", background: t.accent, color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{todayAppts}</span>}
+                  {todayAppts > 0 && <span style={{ background: t.accent, color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{todayAppts}</span>}
                 </button>
               </div>
             </div>

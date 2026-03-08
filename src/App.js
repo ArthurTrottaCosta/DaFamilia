@@ -961,27 +961,29 @@ export default function App() {
         {screen === "family" && family && (
           <div style={{ minHeight: "100vh", paddingTop: nudges.length > 0 ? 160 : 0 }}>
             {/* Header */}
-            <div style={{ padding: "18px 16px 0", background: t.header, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid ${t.cardBorder}`, position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <span style={{ fontSize: 20 }}>🏡</span>
-                    <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 800, color: t.text }}>{family.name}</h1>
+            <div style={{ padding: "12px 14px 0", background: t.header, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid ${t.cardBorder}`, position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                {/* Left: name + code */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 18, flexShrink: 0 }}>🏡</span>
+                    <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 17, fontWeight: 800, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{family.name}</h1>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
-                    <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 11, fontWeight: 800, letterSpacing: "3px", color: t.accent, background: t.pill, padding: "2px 9px", borderRadius: 20, cursor: "pointer" }}>{family.code} 📋</span>
-                    <button onClick={() => setShowMembers(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "2px 9px", fontSize: 11, color: t.textSub, cursor: "pointer" }}>👥 {members.length}</button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                    <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 10, fontWeight: 800, letterSpacing: "2px", color: t.accent, background: t.pill, padding: "2px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>{family.code} 📋</span>
+                    <button onClick={() => setShowMembers(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "1px 8px", fontSize: 11, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>👥 {members.length}</button>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                {/* Right: fixed-width action buttons */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                   {tab === "contacts" && (
                     <div style={{ display: "flex", background: dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2 }}>
-                      <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>⊞</button>
-                      <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 14, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
+                      <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>⊞</button>
+                      <button onClick={() => toggleLayout("list")} style={{ padding: "5px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
                     </div>
                   )}
-                  <button onClick={() => setShowSettings(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>⚙️ <span style={{ fontSize: 12 }}>Menu</span></button>
-                  <button onClick={reset} style={{ background: "none", border: `1.5px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer" }}>Sair</button>
+                  <button onClick={() => setShowSettings(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>⚙️ Menu</button>
+                  <button onClick={reset} style={{ background: "none", border: `1.5px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 10px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>Sair</button>
                 </div>
               </div>
               {tab === "contacts" && (

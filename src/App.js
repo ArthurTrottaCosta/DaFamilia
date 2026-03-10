@@ -222,7 +222,7 @@ function EmojiPicker({ value, onChange, dark }) {
 }
 
 // ── Settings Modal ────────────────────────────────────────────────────────────
-function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate, onShowHowTo }) {
+function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate, onShowHowTo, onEnableNotifications }) {
   const [editName, setEditName] = useState(false);
   const [newName, setNewName] = useState(family.name);
   const [editPass, setEditPass] = useState(false);
@@ -263,6 +263,9 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
           <button onClick={() => { onClose(); setTimeout(onShowHowTo, 150); }} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
             data-menu-howto="1">
             <span style={{ fontSize: 24 }}>❓</span>Como usar
+          </button>
+          <button onClick={() => onEnableNotifications()} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, gridColumn: "span 2" }}>
+            <span style={{ fontSize: 24 }}>🔔</span>Ativar notificações neste dispositivo
           </button>
         </div>
 
@@ -1093,7 +1096,7 @@ export default function App() {
         {loading && <Loader text={loadingText} dark={dark} />}
         {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} dark={dark} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} dark={dark} />}
-        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} />}
+        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} onEnableNotifications={() => { subscribeToPush(family.code, currentMember).then(() => setToast("🔔 Notificações ativadas!")); setShowSettings(false); }} />}
         {showHowTo && <HowToModal onClose={() => { setShowHowTo(false); localStorage.setItem("df_howto_done", "1"); }} dark={dark} />}
         {selectedContact && !editingContact && <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} onPin={togglePin} dark={dark} />}
         {editingContact && <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} dark={dark} />}

@@ -6,6 +6,33 @@ const supabase = createClient(
   "sb_publishable_px91bnDnthtn-2R6-WuTVQ_ecukGXuY"
 );
 
+const VAPID_PUBLIC_KEY = "BCOe6CPC99lsf5PXZgzw9z_tYRsEAjFALQ7wr6ehjorBaIhskJpkAuzNacbFljXheLbZvfuS3DQqgLbTegEYe-k";
+const NOTIFY_URL = "https://szjwvmfwikruczkvbcpy.supabase.co/functions/v1/notify";
+const NOTIFY_ANON_KEY = "sb_publishable_px91bnDnthtn-2R6-WuTVQ_ecukGXuY";
+
+function urlBase64ToUint8Array(b) {
+  const pad = "=".repeat((4 - b.length % 4) % 4);
+  const base64 = (b + pad).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = window.atob(base64);
+  return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function subscribeToPush(familyCode, memberName) {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+    await supabase.from("push_subscriptions").upsert({ family_code: familyCode, member_name: memberName, subscription: sub.toJSON() }, { onConflict: "family_code,member_name" });
+  } catch(e) { console.log("Push failed:", e); }
+}
+
+async function sendNotification(type, data) {
+  try { await fetch(NOTIFY_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + NOTIFY_ANON_KEY }, body: JSON.stringify({ type, data }) }); } catch(e) {}
+}
+
 function generateCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }
 function formatPhone(v) {
   const n = v.replace(/\D/g, "").slice(0, 11);
@@ -137,6 +164,7 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
   async function send() {
     if (!target || sending) return; setSending(true);
     await supabase.from("nudges").insert({ family_code: familyCode, from_member: currentMember, to_member: target, contact_id: contact.id, contact_name: contact.name, contact_phone: contact.phone, contact_emoji: contact.emoji, action, seen: false });
+    sendNotification("nudge", { family_code: familyCode, from_member: currentMember, to_member: target, contact_name: contact.name, contact_emoji: contact.emoji, action });
     setSending(false); onSent(`Cutucada enviada para ${target}! 👋`); onClose();
   }
   return (
@@ -791,7 +819,7 @@ export default function App() {
           setLoadingText("Carregando sua família..."); setLoading(true);
           supabase.from("families").select("*").eq("code", familyCode).single()
             .then(({ data: f }) => { if (f) { setFamily(f); setCurrentMember(memberNameSaved || ""); return fetchFamilyData(familyCode); } else localStorage.removeItem("df_session"); })
-            .then(() => { setScreen("family"); setLoading(false); setLoadingText(""); })
+            .then(() => { setScreen("family"); setLoading(false); setLoadingText(""); setTimeout(() => subscribeToPush(familyCode, memberNameSaved || ""), 2000); })
             .catch(() => { setLoading(false); setLoadingText(""); });
         }
       } catch (e) { localStorage.removeItem("df_session"); }
@@ -832,6 +860,7 @@ export default function App() {
     setFamily(f); setCurrentMember(memberName.trim()); saveSession(f, memberName.trim());
     await fetchFamilyData(code);
     setScreen("family"); setLoading(false); setLoadingText(""); setToast(`Família criada! Código: ${code}`);
+    setTimeout(() => subscribeToPush(code, memberName.trim()), 1500);
   }
 
   async function joinFamily() {
@@ -847,6 +876,7 @@ export default function App() {
     setFamily(f); setCurrentMember(yourName.trim()); saveSession(f, yourName.trim());
     await fetchFamilyData(code); setScreen("family"); setLoading(false); setLoadingText("");
     setToast(`Bem-vindo à família ${f.name}! 🏠`);
+    setTimeout(() => subscribeToPush(f.code, yourName.trim()), 1500);
   }
 
   async function addContact(c) {
@@ -879,6 +909,7 @@ export default function App() {
     const { data: saved } = await supabase.from("appointments").insert(data).select().single();
     if (saved) setAppointments(prev => [...prev, saved].sort((a, b) => a.date.localeCompare(b.date)));
     setToast("Compromisso adicionado! 📅");
+    if (saved) sendNotification("new_appointment", saved);
   }
 
   async function deleteAppointment(id) { await supabase.from("appointments").delete().eq("id", id); setAppointments(prev => prev.filter(a => a.id !== id)); setToast("Compromisso removido"); }

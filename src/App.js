@@ -631,29 +631,35 @@ function CalendarScreen({ appointments, members, contacts, currentMember, family
   const selectedDateStr = selectedDay ? `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(selectedDay).padStart(2,"0")}` : null;
   const selectedAppts = selectedDay ? apptsByDay(selectedDay) : [];
 
+  // ALL future appointments, no slice limit
   const upcomingAppts = allAppts
     .filter(a => { const d = new Date(a.date + "T00:00:00"); return d >= new Date(today.toDateString()) && (filterMember === "todos" || a.member_name === filterMember); })
-    .sort((a, b) => a.date.localeCompare(b.date) || (a.time || "").localeCompare(b.time || ""))
-    .slice(0, 6);
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time || "").localeCompare(b.time || ""));
+
+  // Past appointments
+  const pastAppts = allAppts
+    .filter(a => { const d = new Date(a.date + "T00:00:00"); return d < new Date(today.toDateString()) && (filterMember === "todos" || a.member_name === filterMember); })
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.time || "").localeCompare(a.time || ""))
+    .slice(0, 5);
 
   return (
     <div style={{ paddingBottom: 110 }}>
       {/* Filter */}
       <div style={{ padding: "12px 14px 0", overflowX: "auto" }}>
         <div style={{ display: "flex", gap: 8, paddingBottom: 4 }}>
-          <button onClick={() => setFilterMember("todos")} style={{ padding: "6px 14px", borderRadius: 20, border: filterMember === "todos" ? `2px solid ${t.accent}` : `2px solid ${t.inputBorder}`, background: filterMember === "todos" ? `${t.accent}18` : t.input, cursor: "pointer", fontSize: 12, fontWeight: filterMember === "todos" ? 700 : 400, color: filterMember === "todos" ? t.accent : t.textSub, whiteSpace: "nowrap" }}>Todos</button>
+          <button onClick={() => setFilterMember("todos")} style={{ padding: "6px 16px", borderRadius: 20, border: "none", background: filterMember === "todos" ? t.accent : t.card, boxShadow: filterMember === "todos" ? `0 2px 8px ${t.accent}60` : `0 1px 4px rgba(0,0,0,.1)`, cursor: "pointer", fontSize: 12, fontWeight: 700, color: filterMember === "todos" ? "#fff" : t.textSub, whiteSpace: "nowrap" }}>Todos</button>
           {members.map((m, i) => (
-            <button key={i} onClick={() => setFilterMember(m.name)} style={{ padding: "6px 14px", borderRadius: 20, border: filterMember === m.name ? `2px solid ${memberColor(m.name)}` : `2px solid ${t.inputBorder}`, background: filterMember === m.name ? `${memberColor(m.name)}18` : t.input, cursor: "pointer", fontSize: 12, fontWeight: filterMember === m.name ? 700 : 400, color: filterMember === m.name ? memberColor(m.name) : t.textSub, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 16, height: 16, borderRadius: "50%", background: memberColor(m.name), display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800 }}>{m.name[0].toUpperCase()}</span>{m.name}
+            <button key={i} onClick={() => setFilterMember(m.name)} style={{ padding: "6px 16px", borderRadius: 20, border: "none", background: filterMember === m.name ? memberColor(m.name) : t.card, boxShadow: filterMember === m.name ? `0 2px 8px ${memberColor(m.name)}60` : `0 1px 4px rgba(0,0,0,.1)`, cursor: "pointer", fontSize: 12, fontWeight: 700, color: filterMember === m.name ? "#fff" : t.textSub, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 16, height: 16, borderRadius: "50%", background: filterMember === m.name ? "rgba(255,255,255,.35)" : memberColor(m.name), display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 9, fontWeight: 800 }}>{m.name[0].toUpperCase()}</span>{m.name}
             </button>
           ))}
         </div>
       </div>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 8px" }}>
-        <button onClick={prevMonth} style={{ background: `${t.accent}18`, border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 16, cursor: "pointer", color: t.accent }}>‹</button>
+      {/* Month nav */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 8px" }}>
+        <button onClick={prevMonth} style={{ background: t.accent, border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 18, cursor: "pointer", color: "#fff", fontWeight: 700, boxShadow: `0 2px 8px ${t.accent}50` }}>‹</button>
         <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 800, color: t.text }}>{monthNames[viewMonth]} {viewYear}</h2>
-        <button onClick={nextMonth} style={{ background: `${t.accent}18`, border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 16, cursor: "pointer", color: t.accent }}>›</button>
+        <button onClick={nextMonth} style={{ background: t.accent, border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 18, cursor: "pointer", color: "#fff", fontWeight: 700, boxShadow: `0 2px 8px ${t.accent}50` }}>›</button>
       </div>
       {/* Day names */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", padding: "0 14px", gap: 2, marginBottom: 4 }}>
@@ -667,38 +673,61 @@ function CalendarScreen({ appointments, members, contacts, currentMember, family
           const isToday = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
           const isSelected = selectedDay === day;
           const hasBirthday = appts.some(a => a.is_birthday);
+          const hasAppts = appts.filter(a => !a.is_birthday).length > 0;
           return (
-            <div key={day} onClick={() => setSelectedDay(isSelected ? null : day)} style={{ aspectRatio: "1", borderRadius: 12, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", background: isSelected ? t.accent : isToday ? `${t.accent}18` : t.card, border: isToday && !isSelected ? `2px solid ${t.accent}` : `2px solid transparent`, position: "relative", WebkitTapHighlightColor: "transparent" }}>
+            <div key={day} onClick={() => setSelectedDay(isSelected ? null : day)} style={{ aspectRatio: "1", borderRadius: 12, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", background: isSelected ? t.accent : isToday ? `${t.accent}18` : t.card, border: isToday && !isSelected ? `2px solid ${t.accent}` : `2px solid transparent`, position: "relative", boxShadow: hasAppts || hasBirthday ? `0 2px 6px rgba(0,0,0,.12)` : "none", WebkitTapHighlightColor: "transparent" }}>
               {hasBirthday && !isSelected && <div style={{ position: "absolute", top: 3, right: 3, width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />}
-              <span style={{ fontSize: 13, fontWeight: isToday || isSelected ? 800 : 400, color: isSelected ? "#fff" : isToday ? t.accent : t.text }}>{day}</span>
-              {appts.filter(a => !a.is_birthday).length > 0 && (
+              <span style={{ fontSize: 13, fontWeight: isToday || isSelected || hasAppts ? 800 : 400, color: isSelected ? "#fff" : isToday ? t.accent : t.text }}>{day}</span>
+              {hasAppts && (
                 <div style={{ display: "flex", gap: 2, marginTop: 2, flexWrap: "wrap", justifyContent: "center", maxWidth: 28 }}>
-                  {appts.filter(a => !a.is_birthday).slice(0, 3).map((a, idx) => <div key={idx} style={{ width: 5, height: 5, borderRadius: "50%", background: isSelected ? "rgba(255,255,255,.8)" : memberColor(a.member_name) }} />)}
+                  {appts.filter(a => !a.is_birthday).slice(0, 3).map((a, idx) => <div key={idx} style={{ width: 5, height: 5, borderRadius: "50%", background: isSelected ? "rgba(255,255,255,.9)" : memberColor(a.member_name) }} />)}
                 </div>
               )}
             </div>
           );
         })}
       </div>
-      {/* Selected day */}
+
+      {/* Selected day detail */}
       {selectedDay && (
-        <div style={{ margin: "16px 14px 0" }}>
+        <div style={{ margin: "16px 14px 0", background: `${t.accent}10`, borderRadius: 16, padding: "14px", border: `1.5px solid ${t.accent}25` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: t.text, fontFamily: "Georgia,serif" }}>{selectedDay} de {monthNames[viewMonth]}</p>
-            <button onClick={() => setShowAdd(true)} style={{ background: t.accent, border: "none", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: "#fff", cursor: "pointer", fontWeight: 700 }}>+ Novo</button>
+            <p style={{ fontSize: 14, fontWeight: 800, color: t.accent, fontFamily: "Georgia,serif" }}>📅 {selectedDay} de {monthNames[viewMonth]}</p>
+            <button onClick={() => setShowAdd(true)} style={{ background: t.accent, border: "none", borderRadius: 20, padding: "7px 16px", fontSize: 12, color: "#fff", cursor: "pointer", fontWeight: 700, boxShadow: `0 2px 8px ${t.accent}50` }}>+ Adicionar</button>
           </div>
           {selectedAppts.length === 0
-            ? <div style={{ textAlign: "center", padding: "24px 0", background: t.card, borderRadius: 16 }}><p style={{ fontSize: 13, color: t.textMuted, fontStyle: "italic", fontFamily: "Georgia,serif" }}>Nenhum compromisso neste dia</p></div>
+            ? <p style={{ fontSize: 13, color: t.textMuted, fontStyle: "italic", fontFamily: "Georgia,serif", textAlign: "center", padding: "12px 0" }}>Nenhum compromisso neste dia</p>
             : selectedAppts.map(a => <AppointmentCard key={a.id} appt={a} onDelete={onDelete} dark={dark} />)}
         </div>
       )}
-      {/* Upcoming */}
-      {!selectedDay && upcomingAppts.length > 0 && (
-        <div style={{ margin: "20px 14px 0" }}>
-          <p style={{ fontSize: 11, color: t.textMuted, textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>📌 Próximos compromissos</p>
-          {upcomingAppts.map(a => <AppointmentCard key={a.id} appt={a} onDelete={onDelete} showDate dark={dark} />)}
+
+      {/* ALL upcoming appointments — always visible */}
+      <div style={{ margin: "20px 14px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p style={{ fontSize: 12, fontWeight: 800, color: t.text, textTransform: "uppercase", letterSpacing: ".6px" }}>📌 Próximos compromissos</p>
+          <span style={{ fontSize: 11, color: t.textMuted }}>{upcomingAppts.length} {upcomingAppts.length === 1 ? "compromisso" : "compromissos"}</span>
+        </div>
+        {upcomingAppts.length === 0
+          ? <div style={{ background: t.card, borderRadius: 16, padding: "32px 20px", textAlign: "center", border: `1px solid ${t.cardBorder}` }}>
+              <p style={{ fontSize: 32, marginBottom: 10 }}>📅</p>
+              <p style={{ fontFamily: "Georgia,serif", fontSize: 15, color: t.textSub, fontStyle: "italic" }}>Nenhum compromisso futuro</p>
+              <p style={{ fontSize: 12, color: t.textMuted, marginTop: 6 }}>Toque em um dia no calendário para adicionar</p>
+            </div>
+          : upcomingAppts.map(a => <AppointmentCard key={a.id} appt={a} onDelete={onDelete} showDate dark={dark} />)}
+      </div>
+
+      {/* Past appointments - collapsible */}
+      {pastAppts.length > 0 && (
+        <div style={{ margin: "16px 14px 0" }}>
+          <p style={{ fontSize: 11, color: t.textMuted, textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>🕐 Histórico recente</p>
+          {pastAppts.map(a => (
+            <div key={a.id} style={{ opacity: 0.55 }}>
+              <AppointmentCard appt={a} onDelete={onDelete} showDate dark={dark} />
+            </div>
+          ))}
         </div>
       )}
+
       {/* FAB */}
       <button onClick={() => setShowAdd(true)} style={{ position: "fixed", bottom: 24, right: 20, zIndex: 500, background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", border: "none", borderRadius: 60, padding: "16px 22px", display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15, cursor: "pointer", boxShadow: `0 8px 28px ${t.accent}80`, WebkitTapHighlightColor: "transparent" }}>
         <span style={{ fontSize: 20, lineHeight: 1 }}>+</span> Compromisso
@@ -988,11 +1017,11 @@ export default function App() {
                 </div>
               )}
               {/* Tab bar */}
-              <div className="mobile-tab-bar" style={{ display: "flex", marginTop: 10 }}>
-                <button onClick={() => setTab("contacts")} style={{ flex: 1, padding: "11px", background: "none", border: "none", borderBottom: tab === "contacts" ? `2.5px solid ${t.accent}` : "2.5px solid transparent", color: tab === "contacts" ? t.accent : t.textMuted, fontWeight: tab === "contacts" ? 700 : 400, fontSize: 13, cursor: "pointer" }}>📒 Contatos</button>
-                <button onClick={() => setTab("calendar")} style={{ flex: 1, padding: "11px", background: "none", border: "none", borderBottom: tab === "calendar" ? `2.5px solid ${t.accent}` : "2.5px solid transparent", color: tab === "calendar" ? t.accent : t.textMuted, fontWeight: tab === "calendar" ? 700 : 400, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+              <div className="mobile-tab-bar" style={{ display: "flex", marginTop: 10, gap: 6, padding: "0 2px" }}>
+                <button onClick={() => setTab("contacts")} style={{ flex: 1, padding: "10px", background: tab === "contacts" ? t.accent : "transparent", borderRadius: tab === "contacts" ? "12px 12px 0 0" : "none", border: "none", borderBottom: tab === "contacts" ? "none" : `2px solid ${t.cardBorder}`, color: tab === "contacts" ? "#fff" : t.textMuted, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all .15s" }}>📒 Contatos</button>
+                <button onClick={() => setTab("calendar")} style={{ flex: 1, padding: "10px", background: tab === "calendar" ? t.accent : "transparent", borderRadius: tab === "calendar" ? "12px 12px 0 0" : "none", border: "none", borderBottom: tab === "calendar" ? "none" : `2px solid ${t.cardBorder}`, color: tab === "calendar" ? "#fff" : t.textMuted, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
                   📅 Calendário
-                  {todayAppts > 0 && <span style={{ background: t.accent, color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{todayAppts}</span>}
+                  {todayAppts > 0 && <span style={{ background: tab === "calendar" ? "rgba(255,255,255,.35)" : t.accent, color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{todayAppts}</span>}
                 </button>
               </div>
             </div>

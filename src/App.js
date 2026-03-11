@@ -168,9 +168,9 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
     setSending(false); onSent(`Cutucada enviada para ${target}! 👋`); onClose();
   }
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1100, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1100, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }}>
+        
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 21, color: t.text, marginBottom: 6, fontWeight: 700 }}>👋 Cutucar alguém</h2>
         <p style={{ fontSize: 13, color: t.textMuted, marginBottom: 20, lineHeight: 1.5 }}>Notificar alguém para entrar em contato com {contact.emoji} <strong>{contact.name}</strong>.</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
@@ -250,10 +250,10 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
-        <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, marginBottom: 20, fontWeight: 700 }}>⚙️ Menu</h2>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto" }}>
+        
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}><h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>⚙️ Menu</h2><button onClick={onClose} style={{ background: "rgba(0,0,0,.08)", border: "none", borderRadius: "50%", width: 34, height: 34, fontSize: 16, cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button></div>
 
         {/* Quick actions */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
@@ -324,9 +324,9 @@ function MembersModal({ members, family, onClose, onToast, dark }) {
     onToast("Compartilhando via WhatsApp! 🚀");
   }
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "70vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "70vh", overflowY: "auto" }}>
+        
         <h2 style={{ fontFamily: "Georgia,serif", fontSize: 20, color: t.text, marginBottom: 6, fontWeight: 700 }}>👨‍👩‍👧‍👦 Membros da família</h2>
         <p style={{ fontSize: 13, color: t.textMuted, marginBottom: 18 }}>Convide mais pessoas!</p>
         <div style={{ background: `${t.accent}10`, borderRadius: 16, padding: "16px 14px", marginBottom: 20, border: `1.5px solid ${t.accent}28` }}>
@@ -362,9 +362,9 @@ function EditModal({ contact, onSave, onClose, dark }) {
   const fS2 = { width: "100%", padding: "14px 16px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.input, fontFamily: "Georgia,serif", fontSize: "16px", color: t.text, marginBottom: 11, outline: "none", boxSizing: "border-box" };
   async function handleSave() { if (!valid || saving) return; setSaving(true); await onSave({ ...contact, name: name.trim(), label: label.trim(), establishment: est.trim(), phone, emoji }); setSaving(false); }
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1050, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1050, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
+        
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>Editar contato</h2>
           <button onClick={onClose} style={{ background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)", border: "none", borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer" }}>✕ Fechar</button>
@@ -396,8 +396,8 @@ function ContactDetail({ contact, members, currentMember, familyCode, onClose, o
   const phone = rawPhone(contact.phone);
   return (
     <>
-      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-        <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "20px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+        <div style={{ background: t.modalBg, borderRadius: 24, padding: "20px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
           <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 18px" }} />
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${t.cardBorder}` }}>
@@ -518,8 +518,8 @@ function AddModal({ onSave, onClose, dark }) {
   const fS2 = { width: "100%", padding: "14px 16px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.input, fontFamily: "Georgia,serif", fontSize: "16px", color: t.text, marginBottom: 11, outline: "none", boxSizing: "border-box" };
   async function handleSave() { if (!valid || saving) return; setSaving(true); await onSave({ name: name.trim(), label: label.trim(), establishment: est.trim(), phone, emoji }); setSaving(false); }
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, marginLeft: "auto", marginRight: "auto" }} />
         </div>
@@ -551,9 +551,9 @@ function AddAppointmentModal({ members, contacts, currentMember, familyCode, onS
     setSaving(false);
   }
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background: t.modalBg, borderRadius: "26px 26px 0 0", padding: "24px 18px 40px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
-        <div style={{ width: 36, height: 4, background: t.inputBorder, borderRadius: 4, margin: "0 auto 20px" }} />
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "28px 22px", width: "100%", maxWidth: 480, maxHeight: "92vh", overflowY: "auto", overscrollBehavior: "contain" }}>
+        
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <h2 style={{ fontFamily: "Georgia,serif", fontSize: 22, color: t.text, fontWeight: 700 }}>📅 Novo compromisso</h2>
           <button onClick={onClose} style={{ background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)", border: "none", borderRadius: 20, padding: "6px 12px", fontSize: 13, color: t.textSub, cursor: "pointer" }}>✕ Fechar</button>

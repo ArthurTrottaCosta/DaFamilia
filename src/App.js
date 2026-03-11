@@ -195,26 +195,47 @@ function NudgeModal({ contact, members, currentMember, familyCode, onClose, onSe
 }
 
 // ── Emoji Picker ──────────────────────────────────────────────────────────────
+const EMOJI_CATEGORIES = [
+  { label: "⭐ Geral",    emojis: ["⭐","🏠","📞","💼","🎯","🔑","💡","📋","🗂️","✅"] },
+  { label: "🏥 Saúde",   emojis: ["🏥","💊","🩺","🦷","👁️","🧠","💉","🩹","🏋️","🧘"] },
+  { label: "🔧 Serviços",emojis: ["🔧","🔨","⚡","🚿","🪟","🧹","🏗️","🔌","🪛","🛠️"] },
+  { label: "🍕 Comida",  emojis: ["🍕","🍔","🍣","🥩","🍺","☕","🎂","🥗","🍜","🍰"] },
+  { label: "🚗 Veículos",emojis: ["🚗","🏍️","🚕","🚌","✈️","🚢","🚲","🛵","🚑","🚒"] },
+  { label: "🎨 Lazer",   emojis: ["🎨","⚽","🎵","📚","🎬","🎮","🏊","🎭","🎤","🏄"] },
+  { label: "💰 Finanças",emojis: ["🏦","💰","💳","📈","⚖️","🏛️","💵","🧾","📊","🤝"] },
+  { label: "🐾 Pets",    emojis: ["🐾","🐕","🐈","🐠","🐇","🦜","🐾","🏥","✂️","🛁"] },
+  { label: "👩 Pessoas", emojis: ["👩‍⚕️","👨‍🔧","💇","💆","👨‍🍳","👩‍🏫","👨‍⚖️","💂","🧑‍🌾","👩‍💻"] },
+];
+
 function EmojiPicker({ value, onChange, dark }) {
   const t = getTheme(dark);
-  const SUGGESTIONS = ["⭐","🔧","🏥","🍕","🚗","💇","⚖️","💊","🏫","🏦","🐾","🌿","💪","🎨","📦","🏠"];
-  function handleInput(e) {
-    const chars = [...e.target.value].filter(c => c.codePointAt(0) > 255);
-    if (chars.length > 0) onChange(chars[0]);
-  }
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+
   return (
     <div style={{ marginBottom: 14 }}>
       <p style={{ fontSize: 11, color: t.textMuted, marginBottom: 8, textTransform: "uppercase", letterSpacing: ".5px" }}>Ícone do contato</p>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, background: t.input, borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, padding: "10px 14px", marginBottom: 8 }}>
-        <span style={{ fontSize: 38, lineHeight: 1 }}>{value}</span>
-        <div style={{ flex: 1 }}>
-          <input value="" onChange={handleInput} placeholder="Digite ou cole um emoji aqui 😊" style={{ width: "100%", border: "none", background: "transparent", fontSize: 15, fontFamily: "Georgia,serif", color: t.text, outline: "none" }} />
-          <p style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>No celular: toque em 🌐 ou 😊 no teclado</p>
+
+      {/* Current emoji + tap to change label */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14, background: t.input, borderRadius: 14, border: `1.5px solid ${t.accent}40`, padding: "10px 16px", marginBottom: 12 }}>
+        <span style={{ fontSize: 42, lineHeight: 1 }}>{value}</span>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: t.text }}>Ícone selecionado</p>
+          <p style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>Toque em qualquer emoji abaixo para trocar</p>
         </div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {SUGGESTIONS.map(e => (
-          <button key={e} onClick={() => onChange(e)} style={{ width: 38, height: 38, borderRadius: 10, border: value === e ? `2px solid ${t.accent}` : `1.5px solid ${t.inputBorder}`, background: value === e ? `${t.accent}18` : t.input, fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>{e}</button>
+
+      {/* Category tabs */}
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 8, scrollbarWidth: "none" }}>
+        {EMOJI_CATEGORIES.map((cat, i) => (
+          <button key={i} onClick={() => setActiveCategory(i)} style={{ flexShrink: 0, padding: "5px 12px", borderRadius: 20, border: "none", background: activeCategory === i ? t.accent : t.card, color: activeCategory === i ? "#fff" : t.textSub, fontSize: 11, fontWeight: 700, cursor: "pointer", boxShadow: activeCategory === i ? `0 2px 8px ${t.accent}50` : "0 1px 3px rgba(0,0,0,.08)", whiteSpace: "nowrap" }}>{cat.label}</button>
+        ))}
+      </div>
+
+      {/* Emoji grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+        {EMOJI_CATEGORIES[activeCategory].emojis.map(e => (
+          <button key={e} onClick={() => onChange(e)} style={{ aspectRatio: "1", borderRadius: 14, border: "none", background: value === e ? `${t.accent}22` : t.card, fontSize: 26, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: value === e ? `0 0 0 2.5px ${t.accent}` : "0 1px 4px rgba(0,0,0,.1)", transform: value === e ? "scale(1.1)" : "scale(1)", transition: "all .12s" }}>{e}</button>
         ))}
       </div>
     </div>

@@ -17,16 +17,28 @@ function urlBase64ToUint8Array(b) {
   return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
 }
 
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+function isPWA() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
 async function subscribeToPush(familyCode, memberName) {
   try {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return { ok: false, reason: "unsupported" };
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") return;
+    if (permission !== "granted") return { ok: false, reason: "denied" };
     const reg = await navigator.serviceWorker.ready;
     const existing = await reg.pushManager.getSubscription();
     const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
-    await supabase.from("push_subscriptions").upsert({ family_code: familyCode, member_name: memberName, subscription: sub.toJSON() }, { onConflict: "family_code,member_name" });
-  } catch(e) { console.log("Push failed:", e); }
+    const { error } = await supabase.from("push_subscriptions").upsert(
+      { family_code: familyCode, member_name: memberName, subscription: sub.toJSON() },
+      { onConflict: "family_code,member_name" }
+    );
+    if (error) { console.error("Supabase push_subscriptions error:", error); return { ok: false, reason: "db_error" }; }
+    return { ok: true };
+  } catch(e) { console.error("Push failed:", e); return { ok: false, reason: e.message }; }
 }
 
 async function sendNotification(type, data) {
@@ -286,6 +298,15 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
           <button onClick={() => onEnableNotifications()} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, gridColumn: "span 2" }}>
             <span style={{ fontSize: 24 }}>🔔</span>Ativar notificações neste dispositivo
           </button>
+          {typeof isIOS === "function" && isIOS() && !isPWA() && (
+            <div style={{ gridColumn: "span 2", background: "#fff8e1", border: "1px solid #f59e0b", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>🍎</span>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 3 }}>iPhone detectado</p>
+                <p style={{ fontSize: 11, color: "#92400e", lineHeight: 1.5 }}>Para receber notificações no iPhone, instale o app na tela inicial: toque em <strong>Compartilhar → Adicionar à Tela de Início</strong>, depois abra pelo ícone e ative aqui.</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Family name */}
@@ -1116,7 +1137,23 @@ export default function App() {
         {loading && <Loader text={loadingText} dark={dark} />}
         {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} dark={dark} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} dark={dark} />}
-        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} onEnableNotifications={() => { subscribeToPush(family.code, currentMember).then(() => setToast("🔔 Notificações ativadas!")); setShowSettings(false); }} />}
+        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} onEnableNotifications={async () => {
+  if (typeof isIOS === "function" && isIOS() && !isPWA()) {
+    setToast("🍎 No iPhone: instale o app na tela inicial primeiro!");
+    return;
+  }
+  const result = await subscribeToPush(family.code, currentMember);
+  if (result?.ok) {
+    setToast("🔔 Notificações ativadas com sucesso!");
+    setShowSettings(false);
+  } else if (result?.reason === "denied") {
+    setToast("❌ Permissão negada. Ative nas configurações do navegador.");
+  } else if (result?.reason === "unsupported") {
+    setToast("❌ Seu navegador não suporta notificações push.");
+  } else {
+    setToast("❌ Erro ao ativar: " + (result?.reason || "desconhecido"));
+  }
+}} />}
         {showHowTo && <HowToModal onClose={() => { setShowHowTo(false); localStorage.setItem("df_howto_done", "1"); }} dark={dark} />}
         {selectedContact && !editingContact && <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} onPin={togglePin} dark={dark} />}
         {editingContact && <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} dark={dark} />}

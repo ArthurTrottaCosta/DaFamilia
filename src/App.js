@@ -32,10 +32,13 @@ async function subscribeToPush(familyCode, memberName) {
     const reg = await navigator.serviceWorker.ready;
     const existing = await reg.pushManager.getSubscription();
     const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
-    const { error } = await supabase.from("push_subscriptions").upsert(
-      { family_code: familyCode, member_name: memberName, subscription: sub.toJSON() },
-      { onConflict: "family_code,member_name" }
-    );
+    // Delete old subscription for this member first, then insert fresh
+    await supabase.from("push_subscriptions")
+      .delete()
+      .eq("family_code", familyCode)
+      .eq("member_name", memberName);
+    const { error } = await supabase.from("push_subscriptions")
+      .insert({ family_code: familyCode, member_name: memberName, subscription: sub.toJSON() });
     if (error) { console.error("Supabase push_subscriptions error:", error); return { ok: false, reason: "db_error" }; }
     return { ok: true };
   } catch(e) { console.error("Push failed:", e); return { ok: false, reason: e.message }; }

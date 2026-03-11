@@ -980,7 +980,7 @@ export default function App() {
               <button onClick={() => { setScreen("join"); setErr(""); }} style={{ padding: "18px 24px", borderRadius: 18, border: `2px solid ${t.inputBorder}`, background: t.card, color: t.textSub, fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>🔗 Entrar em uma família</button>
               <button onClick={() => setShowHowTo(true)} style={{ padding: "12px", borderRadius: 14, border: "none", background: "transparent", color: t.textMuted, fontSize: 13, cursor: "pointer" }}>❓ Como funciona</button>
             </div>
-            <button onClick={toggleDark} style={{ marginTop: 32, background: "none", border: "none", fontSize: 20, cursor: "pointer", opacity: .5 }}>{dark ? "☀️" : "🌙"}</button>
+            
           </div>
         )}
 
@@ -1025,24 +1025,25 @@ export default function App() {
           <div style={{ minHeight: "100vh", paddingTop: nudges.length > 0 ? 160 : 0 }}>
             {/* Header */}
             <div style={{ padding: "12px 14px 0", background: t.header, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid ${t.cardBorder}`, position: "sticky", top: nudges.length > 0 ? 160 : 0, zIndex: 100 }}>
-              {/* Row 1: name + single menu button */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              {/* Row 1: name + menu button */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <span style={{ fontSize: 20, flexShrink: 0 }}>🏡</span>
                 <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 800, color: t.text, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{family.name}</h1>
-                <button onClick={() => setShowSettings(true)} style={{ flexShrink: 0, background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>⚙️ Menu</button>
-              </div>
-              {/* Row 2: code + members + layout toggle + sair */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "nowrap" }}>
-                <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 10, fontWeight: 800, letterSpacing: "2px", color: t.accent, background: t.pill, padding: "3px 9px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>{family.code} 📋</span>
-                <button onClick={() => setShowMembers(true)} style={{ background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "3px 9px", fontSize: 11, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>👥 {members.length}</button>
-                <div style={{ flex: 1 }} />
+                {/* Layout toggle - only on contacts tab */}
                 {tab === "contacts" && (
-                  <div style={{ display: "flex", background: dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", borderRadius: 10, padding: 3, gap: 2, flexShrink: 0 }}>
-                    <button onClick={() => toggleLayout("grid")} style={{ padding: "4px 8px", borderRadius: 8, border: "none", background: layout === "grid" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "grid" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>⊞</button>
-                    <button onClick={() => toggleLayout("list")} style={{ padding: "4px 8px", borderRadius: 8, border: "none", background: layout === "list" ? (dark ? "rgba(255,255,255,.15)" : "#fff") : "transparent", cursor: "pointer", fontSize: 13, boxShadow: layout === "list" ? "0 1px 4px rgba(0,0,0,.15)" : "none", color: t.text }}>☰</button>
+                  <div style={{ display: "flex", background: dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.07)", borderRadius: 10, padding: 3, gap: 2, flexShrink: 0 }}>
+                    <button onClick={() => toggleLayout("grid")} style={{ padding: "5px 9px", borderRadius: 7, border: "none", background: layout === "grid" ? t.accent : "transparent", cursor: "pointer", fontSize: 13, color: layout === "grid" ? "#fff" : t.textMuted, transition: "all .15s" }}>⊞</button>
+                    <button onClick={() => toggleLayout("list")} style={{ padding: "5px 9px", borderRadius: 7, border: "none", background: layout === "list" ? t.accent : "transparent", cursor: "pointer", fontSize: 13, color: layout === "list" ? "#fff" : t.textMuted, transition: "all .15s" }}>☰</button>
                   </div>
                 )}
-                <button onClick={reset} style={{ flexShrink: 0, background: "none", border: `1px solid ${t.inputBorder}`, borderRadius: 20, padding: "3px 10px", fontSize: 12, color: t.textSub, cursor: "pointer", whiteSpace: "nowrap" }}>Sair</button>
+                <button onClick={() => setShowSettings(true)} style={{ flexShrink: 0, background: t.accent, border: "none", borderRadius: 20, padding: "7px 14px", fontSize: 12, color: "#fff", cursor: "pointer", fontWeight: 700, boxShadow: `0 2px 8px ${t.accent}50` }}>⚙️ Menu</button>
+              </div>
+              {/* Row 2: code pill + members + sair */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                <span onClick={() => { navigator.clipboard?.writeText(family.code); setToast("Código copiado!"); }} style={{ fontSize: 10, fontWeight: 800, letterSpacing: "2px", color: t.accent, background: t.pill, padding: "4px 10px", borderRadius: 20, cursor: "pointer", border: `1px solid ${t.accent}30` }}>{family.code} 📋</span>
+                <button onClick={() => setShowMembers(true)} style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 20, padding: "4px 10px", fontSize: 11, color: t.textSub, cursor: "pointer", fontWeight: 600, boxShadow: "0 1px 3px rgba(0,0,0,.08)" }}>👥 {members.length}</button>
+                <div style={{ flex: 1 }} />
+                <button onClick={reset} style={{ flexShrink: 0, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 20, padding: "4px 12px", fontSize: 12, color: t.textSub, cursor: "pointer", fontWeight: 600, boxShadow: "0 1px 3px rgba(0,0,0,.08)" }}>Sair</button>
               </div>
               {tab === "contacts" && (
                 <div style={{ position: "relative", paddingBottom: 0 }}>

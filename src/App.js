@@ -210,8 +210,6 @@ const EMOJI_CATEGORIES = [
 function EmojiPicker({ value, onChange, dark }) {
   const t = getTheme(dark);
   const [activeCategory, setActiveCategory] = useState(0);
-  const [showAll, setShowAll] = useState(false);
-
   return (
     <div style={{ marginBottom: 14 }}>
       <p style={{ fontSize: 11, color: t.textMuted, marginBottom: 8, textTransform: "uppercase", letterSpacing: ".5px" }}>Ícone do contato</p>

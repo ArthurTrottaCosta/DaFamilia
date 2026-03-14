@@ -8,7 +8,6 @@ const supabase = createClient(
 
 const VAPID_PUBLIC_KEY = "BCOe6CPC99lsf5PXZgzw9z_tYRsEAjFALQ7wr6ehjorBaIhskJpkAuzNacbFljXheLbZvfuS3DQqgLbTegEYe-k";
 const NOTIFY_URL = "https://szjwvmfwikruczkvbcpy.supabase.co/functions/v1/notify";
-const NOTIFY_ANON_KEY = "sb_publishable_px91bnDnthtn-2R6-WuTVQ_ecukGXuY";
 
 function urlBase64ToUint8Array(b) {
   const pad = "=".repeat((4 - b.length % 4) % 4);

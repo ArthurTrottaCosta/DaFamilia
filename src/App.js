@@ -45,7 +45,10 @@ async function subscribeToPush(familyCode, memberName) {
 }
 
 async function sendNotification(type, data) {
-  try { await fetch(NOTIFY_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + NOTIFY_ANON_KEY }, body: JSON.stringify({ type, data }) }); } catch(e) {}
+  try {
+    const res = await fetch(NOTIFY_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type, data }) });
+    console.log("sendNotification", type, res.status);
+  } catch(e) { console.error("sendNotification error:", e); }
 }
 
 function generateCode() { return Math.random().toString(36).substring(2, 8).toUpperCase(); }

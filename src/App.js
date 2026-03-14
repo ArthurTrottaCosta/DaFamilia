@@ -439,7 +439,8 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
 function MembersModal({ members, family, onClose, onToast, dark }) {
   const t = getTheme(dark);
   function shareFamily() {
-    const msg = `Oi! Entrei no *DaFamília* 🏡\n\nVem guardar os contatos da nossa família comigo!\n\n👉 https://da-familia.vercel.app\n🔑 Código: *${family.code}*\n🔒 Peça a senha pra mim`;
+    const link = `https://dafamiliaa.com.br/?entrar=${family.code}`;
+    const msg = `Oi! Entrei no *DaFamília* 🏡\\nO app pra guardar os contatos da nossa família!\\n\\n👉 Clica aqui para entrar direto:\\n${link}\\n\\n🔒 Peça a senha pra mim`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
     onToast("Compartilhando via WhatsApp! 🚀");
   }
@@ -890,7 +891,13 @@ function CalendarScreen({ appointments, members, contacts, currentMember, family
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [screen, setScreen] = useState("home");
+  const [screen, setScreen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("entrar") ? "join" : "home";
+  });
+    const params = new URLSearchParams(window.location.search);
+    return params.get("entrar") ? "join" : "home";
+  });
   const [tab, setTab] = useState("contacts");
   const [family, setFamily] = useState(null);
   const [currentMember, setCurrentMember] = useState("");
@@ -915,7 +922,13 @@ export default function App() {
   const [memberBirthday, setMemberBirthday] = useState("");
   const [newFamilyName, setNewFamilyName] = useState("");
   const [newPass, setNewPass] = useState("");
-  const [joinCode, setJoinCode] = useState("");
+  const [joinCode, setJoinCode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("entrar") || "";
+  });
+    const params = new URLSearchParams(window.location.search);
+    return params.get("entrar") || "";
+  });
   const [joinPass, setJoinPass] = useState("");
   const [yourName, setYourName] = useState("");
   const [yourBirthday, setYourBirthday] = useState("");

@@ -895,9 +895,6 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     return params.get("entrar") ? "join" : "home";
   });
-    const params = new URLSearchParams(window.location.search);
-    return params.get("entrar") ? "join" : "home";
-  });
   const [tab, setTab] = useState("contacts");
   const [family, setFamily] = useState(null);
   const [currentMember, setCurrentMember] = useState("");
@@ -923,9 +920,6 @@ export default function App() {
   const [newFamilyName, setNewFamilyName] = useState("");
   const [newPass, setNewPass] = useState("");
   const [joinCode, setJoinCode] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("entrar") || "";
-  });
     const params = new URLSearchParams(window.location.search);
     return params.get("entrar") || "";
   });

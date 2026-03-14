@@ -255,8 +255,89 @@ function EmojiPicker({ value, onChange, dark }) {
   );
 }
 
+// ── Debug Modal ───────────────────────────────────────────────────────────────
+function DebugModal({ familyCode, memberName, dark, onClose }) {
+  const t = getTheme(dark);
+  const [log, setLog] = useState([]);
+  const [running, setRunning] = useState(false);
+
+  async function runDiag() {
+    setRunning(true);
+    const lines = [];
+    const add = (msg) => { lines.push(msg); setLog([...lines]); };
+
+    add("📱 User Agent: " + navigator.userAgent.slice(0, 80));
+    add("🌐 isPWA: " + (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone));
+    add("🔔 Notification API: " + ("Notification" in window ? "✅" : "❌"));
+    add("⚙️ ServiceWorker API: " + ("serviceWorker" in navigator ? "✅" : "❌"));
+    add("📨 PushManager API: " + ("PushManager" in window ? "✅" : "❌"));
+
+    if ("Notification" in window) {
+      add("🔑 Permissão atual: " + Notification.permission);
+    }
+
+    if ("serviceWorker" in navigator) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        add("📋 SW registros: " + regs.length);
+        for (const r of regs) {
+          add("  - scope: " + r.scope);
+          add("  - state: " + (r.active?.state || "none"));
+          add("  - scriptURL: " + (r.active?.scriptURL || "none").split("/").pop());
+        }
+        const reg = await navigator.serviceWorker.ready;
+        add("✅ SW ready: " + reg.scope);
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          add("✅ Subscription existe!");
+          add("  endpoint: " + sub.endpoint.slice(0, 60) + "...");
+        } else {
+          add("❌ Sem subscription — tente Ativar Notificações");
+        }
+      } catch(e) {
+        add("❌ SW error: " + e.message);
+      }
+    }
+
+    // Test show notification directly
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      add("🧪 Testando showNotification...");
+      await reg.showNotification("🔔 Teste DaFamília", {
+        body: "Se apareceu, notificações funcionam!",
+        icon: "/logo192.png",
+        tag: "debug-test",
+      });
+      add("✅ showNotification chamado com sucesso!");
+    } catch(e) {
+      add("❌ showNotification error: " + e.message);
+    }
+
+    setRunning(false);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000, padding: 16, backdropFilter: "blur(6px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ background: t.modalBg, borderRadius: 24, padding: "24px 20px", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "Georgia,serif", fontSize: 20, color: t.text, fontWeight: 700 }}>🔍 Diagnóstico</h2>
+          <button onClick={onClose} style={{ background: "rgba(0,0,0,.08)", border: "none", borderRadius: "50%", width: 34, height: 34, fontSize: 16, cursor: "pointer", color: t.textMuted }}>✕</button>
+        </div>
+        <button onClick={runDiag} disabled={running} style={{ width: "100%", padding: "14px", borderRadius: 14, border: "none", background: `linear-gradient(135deg,${t.accent},${t.accentDark})`, color: "#fff", fontWeight: 700, fontSize: 15, cursor: running ? "wait" : "pointer", marginBottom: 16, boxShadow: `0 4px 14px ${t.accent}50` }}>
+          {running ? "⏳ Rodando..." : "▶ Rodar diagnóstico"}
+        </button>
+        {log.length > 0 && (
+          <div style={{ background: dark ? "#0a0a0a" : "#f5f5f5", borderRadius: 12, padding: 14, fontFamily: "monospace", fontSize: 11, lineHeight: 1.7, color: dark ? "#00ff88" : "#1a1a1a", whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+            {log.join("\n")}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Settings Modal ────────────────────────────────────────────────────────────
-function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate, onShowHowTo, onEnableNotifications }) {
+function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyUpdate, onShowHowTo, onEnableNotifications, onShowDebug }) {
   const [editName, setEditName] = useState(false);
   const [newName, setNewName] = useState(family.name);
   const [editPass, setEditPass] = useState(false);
@@ -301,15 +382,9 @@ function SettingsModal({ family, dark, onToggleDark, onClose, onToast, onFamilyU
           <button onClick={() => onEnableNotifications()} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.text, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, gridColumn: "span 2" }}>
             <span style={{ fontSize: 24 }}>🔔</span>Ativar notificações neste dispositivo
           </button>
-          {typeof isIOS === "function" && isIOS() && !isPWA() && (
-            <div style={{ gridColumn: "span 2", background: "#fff8e1", border: "1px solid #f59e0b", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <span style={{ fontSize: 20, flexShrink: 0 }}>🍎</span>
-              <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 3 }}>iPhone detectado</p>
-                <p style={{ fontSize: 11, color: "#92400e", lineHeight: 1.5 }}>Para receber notificações no iPhone, instale o app na tela inicial: toque em <strong>Compartilhar → Adicionar à Tela de Início</strong>, depois abra pelo ícone e ative aqui.</p>
-              </div>
-            </div>
-          )}
+          <button onClick={() => onShowDebug()} style={{ padding: "14px", borderRadius: 14, border: `1.5px solid ${t.inputBorder}`, background: t.card, cursor: "pointer", fontSize: 13, color: t.textMuted, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, gridColumn: "span 2" }}>
+            <span style={{ fontSize: 24 }}>🔍</span>Diagnóstico de notificações
+          </button>
         </div>
 
         {/* Family name */}
@@ -829,6 +904,7 @@ export default function App() {
   const [showMembers, setShowMembers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
   const [editingContact, setEditingContact] = useState(null);
   const [layout, setLayout] = useState(() => localStorage.getItem("df_layout") || "grid");
@@ -1140,7 +1216,8 @@ export default function App() {
         {loading && <Loader text={loadingText} dark={dark} />}
         {showAdd && <AddModal onSave={addContact} onClose={() => setShowAdd(false)} dark={dark} />}
         {showMembers && family && <MembersModal members={members} family={family} onClose={() => setShowMembers(false)} onToast={setToast} dark={dark} />}
-        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} onEnableNotifications={async () => {
+        {showSettings && family && <SettingsModal family={family} dark={dark} onToggleDark={toggleDark} onClose={() => setShowSettings(false)} onToast={setToast} onFamilyUpdate={setFamily} onShowHowTo={() => setShowHowTo(true)} onShowDebug={() => { setShowSettings(false); setTimeout(() => setShowDebug(true), 150); }}
+                onEnableNotifications={async () => {
   if (typeof isIOS === "function" && isIOS() && !isPWA()) {
     setToast("🍎 No iPhone: instale o app na tela inicial primeiro!");
     return;
@@ -1158,6 +1235,7 @@ export default function App() {
   }
 }} />}
         {showHowTo && <HowToModal onClose={() => { setShowHowTo(false); localStorage.setItem("df_howto_done", "1"); }} dark={dark} />}
+        {showDebug && <DebugModal familyCode={family?.code} memberName={currentMember} dark={dark} onClose={() => setShowDebug(false)} />}
         {selectedContact && !editingContact && <ContactDetail contact={selectedContact} members={members} currentMember={currentMember} familyCode={family?.code} onClose={() => setSelectedContact(null)} onUpdate={updateContact} onEdit={() => setEditingContact(selectedContact)} onToast={setToast} onPin={togglePin} dark={dark} />}
         {editingContact && <EditModal contact={editingContact} onSave={saveEditContact} onClose={() => setEditingContact(null)} dark={dark} />}
         {toast && <Toast msg={toast} onClose={() => setToast(null)} />}

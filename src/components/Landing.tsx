@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Brand } from "./Brand";
-import { launchReady, configured } from "../lib/supabase";
+import { launchReady, configured, supportEmail } from "../lib/supabase";
 function PreviewCard({
   name,
   job,
@@ -69,15 +69,16 @@ export function Landing() {
           <div className="hero-copy">
             <span className="pill">
               <span className="status-dot" />
-              COISAS BOAS A GENTE COMPARTILHA
+              CONFIANÇA QUE PASSA DE GERAÇÃO EM GERAÇÃO
             </span>
             <h1>
-              Quem cuida da sua casa faz parte da <em>família.</em>
+              Tem contato que faz parte da história da <em>família.</em>
             </h1>
             <p>
-              O eletricista da mãe. A pediatra de confiança. A oficina que o pai
-              indica. Todos os contatos que vocês precisam, juntos em um só
-              lugar.
+              A costureira que a avó conhece há anos. O eletricista que sempre
+              ajudou. A oficina em que o pai confia. Cuide desses contatos e
+              compartilhe com sua família as histórias por trás de cada
+              indicação.
             </p>
             <div className="hero-actions">
               <a className="button primary" href={ready ? "/app" : "/demo"}>
@@ -377,10 +378,11 @@ export function Landing() {
       </main>
       <footer className="site-footer">
         <Brand />
-        <span>Feito para cuidar do que conecta vocês.</span>
+        <span>Para cuidar dos contatos que fazem parte da sua história.</span>
         <div>
           <a href="/privacidade">Privacidade</a>
           <a href="/ajuda">Ajuda</a>
+          <a href={"mailto:" + supportEmail}>Fale com a gente</a>
           <a href="/excluir-conta">Excluir conta</a>
         </div>
         <small>© {new Date().getFullYear()} DaFamília</small>

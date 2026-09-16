@@ -10,7 +10,8 @@ automáticos de compromissos nem publicação nas lojas nesta versão.
 
 ## Infraestrutura encontrada
 
-- Supabase `szjwvmfwikruczkvbcpy` (DaFamilia) encontrado INACTIVE em 16/09/2026.
+- Supabase `szjwvmfwikruczkvbcpy` (DaFamilia) inicialmente INACTIVE; posteriormente conferido Healthy no painel autenticado em 16/09/2026. Backup CLI bloqueado por permissão do papel cli_login_postgres; migração remota ainda pendente.
+- Acesso PUBLIC/anon/authenticated às sete tabelas antigas revogado e conferido no painel, preservando os registros. Evidências em `docs/supabase-quarentena-2026-09-16.md`.
 - Vercel `da-familia`, projeto `prj_n1Di2ZavO4uPUHSmjW797xJezz8w`.
 - Site de pré-lançamento publicado e conferido em `https://www.dafamiliaa.com.br/`; demonstração pública em `/demo`, cadastro fechado.
 - Checkout histórico preservado em `C:\Windows\System32\dafamilia`.
@@ -36,7 +37,7 @@ automáticos de compromissos nem publicação nas lojas nesta versão.
 6. Configurar URLs permitidas de autenticação e ALLOWED_ORIGINS para os domínios
    exatos. Configurar VAPID e implantar notify e delete-account. Testar push em
    Android e iPhone instalado, revogação e logout, sem alegar garantia de entrega.
-7. Completar identificação do controlador, e-mail público de suporte, bases
+7. E-mail público autorizado: contato@octopool.com.br. Completar identificação do controlador, bases
    legais, operadores/regiões, retenção e resposta a solicitações. Definir uso por
    adultos inicialmente; não pedir dados de crianças ou informações de saúde.
    Revisar a política de privacidade antes de abrir contas.

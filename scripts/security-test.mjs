@@ -9,7 +9,7 @@ const status = JSON.parse(
   ),
 );
 const url = status.API_URL;
-if (!/^http:\/\/(127\.0\.0\.1|localhost):56421$/.test(url))
+if (!/^http:\/\/(127\.0\.0\.1|localhost):57421$/.test(url))
   throw new Error("Security tests are LOCAL ONLY.");
 const key = status.PUBLISHABLE_KEY ?? status.ANON_KEY;
 const service = status.SECRET_KEY ?? status.SERVICE_ROLE_KEY;

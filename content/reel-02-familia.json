@@ -1,0 +1,46 @@
+{
+  "slug": "confianca-que-fica-perto",
+  "status": "draft",
+  "stage": "prelaunch",
+  "concept": "Contatos antigos são parte da história da família. Cuidar dessa confiança e compartilhá-la entre gerações.",
+  "voice": "pt-BR-FranciscaNeural",
+  "scenes": [
+    {
+      "image": "content/assets/familia-v2/01-memorias.png",
+      "headline": "Tem contato que acompanha a família há anos.",
+      "voiceover": "Tem contato que acompanha a família há anos.",
+      "label": "LEMBRANÇAS QUE APROXIMAM"
+    },
+    {
+      "image": "content/assets/familia-v2/02-confianca.png",
+      "headline": "Foi indicação da mãe. Já ajudou a avó.",
+      "voiceover": "Foi indicação da mãe. Já ajudou a avó.",
+      "label": "GENTE EM QUEM A GENTE CONFIA"
+    },
+    {
+      "image": "content/assets/familia-v2/02-confianca.png",
+      "headline": "E virou alguém em quem todo mundo confia.",
+      "voiceover": "E virou alguém em quem todo mundo confia.",
+      "label": "CADA CONTATO TEM UMA HISTÓRIA",
+      "contact": {
+        "name": "Seu Antônio",
+        "detail": "Eletricista da família",
+        "context": "Indicação da mãe · há muitos anos"
+      }
+    },
+    {
+      "image": "content/assets/familia-v2/03-geracoes.png",
+      "headline": "Guarde o contato. Cuide da história.",
+      "voiceover": "No DaFamília, essa confiança passa de geração em geração.",
+      "label": "O CUIDADO CONTINUA"
+    },
+    {
+      "image": "content/assets/familia-v2/01-memorias.png",
+      "headline": "DaFamília. Confiança que fica perto.",
+      "voiceover": "DaFamília. Para cuidar dos contatos que fazem parte da sua história.",
+      "label": "CONHEÇA A DEMONSTRAÇÃO",
+      "cta": "www.dafamiliaa.com.br"
+    }
+  ],
+  "caption": "Tem contato que a gente não conhece pela internet. Conhece pela mãe, pela avó, por alguém que a família confia há anos. E junto com o número vem uma história.\n\nO DaFamília nasce para cuidar desses contatos e compartilhar essa confiança entre gerações. Conheça a demonstração no link da bio.\n\nQual contato acompanha a sua família há mais tempo?\n\nCenas e personagens ilustrativos gerados com IA. Narração sintética. Nova versão em preparação; cadastro ainda fechado.\n\n#DaFamilia #ContatosDeConfianca #Familia"
+}

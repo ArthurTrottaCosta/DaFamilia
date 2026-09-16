@@ -32,10 +32,14 @@ npm run check
 npm run test:security
 ```
 
-O teste de segurança recusa qualquer destino diferente de localhost:56421.
+O teste de segurança recusa qualquer destino diferente de localhost:57421.
+
+As portas locais foram movidas de 5642x para 5742x porque o Windows passou a
+reservar o intervalo anterior após reinício do Docker. Não alterar reservas do
+sistema nem executar a suíte contra um Supabase remoto.
 Cria e remove exclusivamente usuários sintéticos locais. Requer as funções
 locais em execução e VAPID não configurado. O servidor Vite usa a porta 5178;
-Supabase usa API 56421, banco 56422 e caixa de e-mail local 56424.
+Supabase usa API 57421, banco 57422 e caixa de e-mail local 57424.
 
 ## Modelo de acesso
 

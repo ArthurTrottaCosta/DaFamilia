@@ -1,13 +1,13 @@
 project_id = "dafamilia-local"
 [api]
 enabled = true
-port = 56421
+port = 57421
 schemas = ["public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 [db]
-port = 56422
-shadow_port = 56420
+port = 57422
+shadow_port = 57420
 major_version = 17
 [db.seed]
 enabled = false
@@ -17,7 +17,7 @@ enabled = false
 enabled = true
 [local_smtp]
 enabled = true
-port = 56424
+port = 57424
 [storage]
 enabled = false
 [auth]

@@ -5,14 +5,36 @@ Identificador preferido: @dafamilia.app (disponibilidade ainda não verificada).
 Alternativas: @usedafamilia, @dafamilia.contatos.
 
 Bio (pré-lançamento):
-Os contatos que sua família confia, juntos. 🏡
-Menos “me passa o número?”. Mais cuidado.
-Nova versão em preparação. Conheça a ideia ↓
+Contatos de confiança. Histórias de família. 🏡
+Cuide de quem acompanha vocês há anos.
+Conheça a demonstração ↓
 
 Link público validado em 16/09/2026: https://www.dafamiliaa.com.br/ — site de pré-lançamento com demonstração e cadastro fechado.
+Contato público autorizado pelo titular: contato@octopool.com.br. Esse endereço é o canal de atendimento; não identifica, por si só, o controlador legal do DaFamília.
+
 Foto de perfil: public/logo512.png (marca própria, sem rosto ou imagem de terceiros).
 Destaques: Comece aqui · Como funciona · Privacidade · Novidades.
 Fixados: O problema que resolvemos · Uma boa indicação · Como conhecer a demonstração.
+
+## Direção aprovada em 16/09/2026
+
+O usuário considerou o primeiro vídeo impessoal. A comunicação deve ter pessoas,
+família, contatos antigos e confiança cultivada ao longo do tempo. A promessa é
+cuidar dos contatos que já fazem parte da história da família e passar essa
+confiança entre gerações. Tecnologia aparece como apoio a esse cuidado.
+
+Mostrar situações familiares, afeto discreto, gestos naturais e contexto de quem
+indicou. Não fazer apenas apresentações de cartões e textos. Não restringir a
+ideia a procurar prestadores de serviço: amizades antigas, vizinhos e outras
+pessoas de confiança também fazem parte dessa rede.
+
+A versão v2 é uma montagem com fotografias ilustrativas geradas por IA, movimento
+suave, narração em português e música original. Não apresentá-la como filmagem,
+cliente real ou depoimento. Manter a identificação das cenas ilustrativas.
+
+A primeira versão deve permanecer no histórico; a direção v2 guia as próximas
+peças. Usar scripts/render-family-reel.py e briefings com scenes. O renderer
+antigo de cartões pode apoiar explicações, mas não é o formato principal.
 
 ## Operação
 

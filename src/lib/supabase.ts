@@ -21,5 +21,6 @@ export function db() {
     );
   return supabase;
 }
-export const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL as
-  string | undefined;
+export const supportEmail =
+  (import.meta.env.VITE_SUPPORT_EMAIL as string | undefined)?.trim() ||
+  "contato@octopool.com.br";

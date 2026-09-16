@@ -1,0 +1,9 @@
+.env*
+!.env.example
+artifacts/
+supabase/
+content/
+scripts/
+node_modules/
+*.log
+.git/

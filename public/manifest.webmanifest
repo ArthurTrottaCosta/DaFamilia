@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "DaFamÃ­lia",
+  "short_name": "DaFamÃ­lia",
+  "description": "Os contatos de confianÃ§a da sua famÃ­lia, juntos.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#f7f6f0",
+  "theme_color": "#244b3d",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

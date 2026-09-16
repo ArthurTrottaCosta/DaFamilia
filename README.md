@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# DaFamília
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Contatos de confiança e compromissos compartilhados em grupos privados.
+Projeto pessoal independente de Octopool/Nexus.
 
-## Available Scripts
+## Estado desta versão
 
-In the project directory, you can run:
+Reformulação em React + TypeScript + Vite. Site institucional, demonstração
+interativa e aplicativo com Supabase Auth individual e autorização no banco.
+A demonstração funciona sem backend e usa somente dados fictícios em memória.
+Cadastro público permanece fechado por padrão. Este repositório não significa
+que a infraestrutura de produção já foi migrada ou que o app está nas lojas.
 
-### `npm start`
+## Desenvolvimento
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Node 22.12+ e Docker para os testes do banco. Não reutilize o Supabase de produção
+nem os containers de outros projetos.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```sh
+npm ci
+npx supabase start
+npx supabase functions serve
+```
 
-### `npm test`
+Copie `.env.example` para `.env.local` e preencha apenas a URL e a chave
+**publishable** locais retornadas por `npx supabase status`. Nunca coloque
+service_role, secret key ou segredo VAPID em variáveis VITE_.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```sh
+npm run dev
+npm run check
+npm run test:security
+```
 
-### `npm run build`
+O teste de segurança recusa qualquer destino diferente de localhost:56421.
+Cria e remove exclusivamente usuários sintéticos locais. Requer as funções
+locais em execução e VAPID não configurado. O servidor Vite usa a porta 5178;
+Supabase usa API 56421, banco 56422 e caixa de e-mail local 56424.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Modelo de acesso
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Conta individual por código de e-mail. Nenhuma senha familiar compartilhada.
+- Grupos, participação e cargos validados no banco com RLS.
+- Convites aleatórios de 256 bits, armazenados por hash, uso único e 48 horas.
+- Qualquer membro organiza contatos/compromissos; administradores gerenciam
+  convites e participação; apenas o responsável transfere o grupo.
+- Referências compostas impedem associar contatos ou responsáveis de outro grupo.
+- Exclusão de conta ocorre em transação; exige transferência de grupos com
+  outros membros. Registros compartilhados remanescentes perdem a autoria.
+- Funções HTTP validam usuário e origem. `verify_jwt=false` permite as chaves
+  atuais do gateway; não significa ausência de autenticação no handler.
+- Push usa web-push, payload genérico e destinos conhecidos. Aceitação do
+  provedor não prova entrega. Lembretes ficam disponíveis dentro do app.
+- O service worker não armazena contatos ou respostas autenticadas em cache.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Publicação
 
-### `npm run eject`
+Siga [docs/lancamento.md](docs/lancamento.md). Uma preview deve usar
+`VITE_LAUNCH_READY=false` e nenhuma URL/chave do ambiente local. O fluxo completo
+precisa ser validado novamente na infraestrutura remota antes de abrir cadastros.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Conteúdo
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Diretrizes em [content/instagram.md](content/instagram.md). Um Reel é renderizado
+localmente a partir de briefing JSON, com arte própria e música sintetizada:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```sh
+python scripts/render-reel.py content/reel-01.json --output artifacts/social/2026-09-16
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Requer Pillow e FFmpeg. Saídas: MP4 vertical 720×1280, capa, legenda, contato de
+revisão e manifesto com hash. O script preserva vídeos existentes e não publica
+no Instagram. Não usa contatos reais, imagens pessoais ou músicas de terceiros.

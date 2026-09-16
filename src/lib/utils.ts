@@ -4,7 +4,9 @@ export function normalizePhone(value: string): string {
     ? "+" + digits
     : digits.length === 10 || digits.length === 11
       ? "+55" + digits
-      : "+" + digits;
+      : /^55\d{10,11}$/.test(digits)
+        ? "+" + digits
+        : "";
   if (!/^\+[1-9]\d{7,14}$/.test(phone))
     throw new Error(
       "Informe um telefone com DDD. Para outros países, comece com + e o código do país.",

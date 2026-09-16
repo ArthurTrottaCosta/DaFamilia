@@ -81,7 +81,7 @@ def scene(data,index,t):
     elif index==1:
         textblock(d,'A indicação que você já confia.',276+shift,58,fg,True)
         d.rounded_rectangle((64,524,656,946),radius=32,fill='white',outline='#dbe3d9',width=2)
-        d.ellipse((98,560,174,636),fill='#e5ece4');d.text((116,580),'CM',font=font(24,bold=True),fill=GREEN)
+        d.ellipse((98,560,174,636),fill='#e5ece4');d.text((116,580),''.join(word[0] for word in data['contact']['name'].split()[:2]).upper(),font=font(24,bold=True),fill=GREEN)
         c=data['contact'];d.text((98,666),c['name'],font=font(39,bold=True),fill=GREEN)
         d.text((98,728),c['specialty'],font=font(28),fill='#5d7367')
         d.line((98,788,621,788),fill='#dbe3d9',width=2)

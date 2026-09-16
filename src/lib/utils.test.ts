@@ -4,11 +4,15 @@ describe("phone safety", () => {
   it("normalizes Brazilian mobile and landline", () => {
     expect(normalizePhone("(11) 99999-1234")).toBe("+5511999991234");
     expect(normalizePhone("1133332222")).toBe("+551133332222");
+    expect(normalizePhone("5511999991234")).toBe("+5511999991234");
   });
   it("preserves international prefix", () =>
     expect(normalizePhone("+1 202 555 0123")).toBe("+12025550123"));
-  it("rejects invalid number", () =>
-    expect(() => normalizePhone("123")).toThrow());
+  it("rejects invalid number or a local number without area code", () => {
+    expect(() => normalizePhone("123")).toThrow();
+    expect(() => normalizePhone("33332222")).toThrow();
+    expect(() => normalizePhone("999991234")).toThrow();
+  });
 });
 it("finds accent insensitive names", () =>
   expect(searchText("Saúde Lúcia")).toBe("saude lucia"));

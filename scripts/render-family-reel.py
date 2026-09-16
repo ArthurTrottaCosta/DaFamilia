@@ -62,7 +62,8 @@ async def main():
     tracks=[]
     for i,s in enumerate(data['scenes']):
         voice=out/f'voice-{i+1}.mp3'
-        voice_config={'voice':data['voice'],'rate':data.get('voice_rate','+0%'),'pitch':data.get('voice_pitch','+0Hz'),'text':s['voiceover']}
+        spoken_text=s['voiceover'].replace('DaFamília','da família')
+        voice_config={'voice':data['voice'],'rate':data.get('voice_rate','+0%'),'pitch':data.get('voice_pitch','+0Hz'),'text':spoken_text}
         voice_meta=out/f'voice-{i+1}.json'
         if not (voice.exists() and voice_meta.exists() and json.loads(voice_meta.read_text(encoding='utf-8'))==voice_config):
             await edge_tts.Communicate(voice_config['text'],voice_config['voice'],rate=voice_config['rate'],pitch=voice_config['pitch']).save(str(voice))

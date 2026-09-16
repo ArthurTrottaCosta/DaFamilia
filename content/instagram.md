@@ -35,7 +35,29 @@ cliente real ou depoimento.
 Revisão v3 pedida pelo usuário: remover avisos de IA sobre a peça e da legenda
 editorial; preservar procedência no manifesto interno. Usar voz
 pt-BR-ThalitaMultilingualNeural em ritmo normal e frases conversadas, sem a
-desaceleração artificial anterior. Essa revisão é a referência atual.
+desaceleração artificial anterior. Referência histórica, substituída pela direção
+de cenas em movimento abaixo.
+
+## Direção atual: pessoas atuando e conversando
+
+O usuário rejeitou a pronúncia da marca e pediu pessoas com movimento corporal,
+deslocamento no cenário e diálogo entre personagens. Pan/zoom sobre fotografia
+não atende ao pedido. Produzir cenas em vídeo com ação e fala sincronizada,
+situações familiares nas quais compartilhar contatos ajuda de forma concreta.
+O renderer de fotografias não é o formato principal autorizado para próximos posts.
+
+Marca na fala: usar o texto fonético "da família", como duas palavras comuns,
+sem pausa interna ou sílabas repetidas. Escrita na tela, legenda e URL permanece
+DaFamília. Isso é uma correção a validar por audição, não pronúncia aprovada.
+Ouvir marca e diálogos antes da entrega; não alegar validação auditiva usando
+somente níveis de áudio ou transcrição. Evitar locução com a marca até a amostra
+ser aceita; o fechamento pode trazer somente logo, domínio e trilha.
+
+Pedido de hoje: dois vídeos diferentes para Instagram e TikTok, quatro posts
+no total. Perfis ainda não existem, conforme resposta do titular. Publicação
+autorizada nesses perfis do DaFamília após criação e acesso, sem usar os perfis
+de Octopool ou pessoais por inferência. Não alterar a rotina para dois por dia:
+o pedido de duas peças vale para hoje.
 
 A primeira versão deve permanecer no histórico; a direção v2 guia as próximas
 peças, com os ajustes v3 de content/reel-03-familia.json. Usar scripts/render-family-reel.py e briefings com scenes. O renderer

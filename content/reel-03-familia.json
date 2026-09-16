@@ -1,0 +1,49 @@
+{
+  "slug": "confianca-que-fica-perto",
+  "status": "draft",
+  "stage": "prelaunch",
+  "concept": "Contatos antigos são parte da história da família. Cuidar dessa confiança e compartilhá-la entre gerações.",
+  "voice": "pt-BR-ThalitaMultilingualNeural",
+  "scenes": [
+    {
+      "image": "content/assets/familia-v2/01-memorias.png",
+      "headline": "Tem contato que acompanha a família há anos.",
+      "voiceover": "Sabe aquele contato que está na família há anos?",
+      "label": "LEMBRANÇAS QUE APROXIMAM"
+    },
+    {
+      "image": "content/assets/familia-v2/02-confianca.png",
+      "headline": "Foi indicação da mãe. Já ajudou a avó.",
+      "voiceover": "Foi a sua mãe quem indicou. Já ajudou a sua avó.",
+      "label": "GENTE EM QUEM A GENTE CONFIA"
+    },
+    {
+      "image": "content/assets/familia-v2/02-confianca.png",
+      "headline": "E virou alguém em quem todo mundo confia.",
+      "voiceover": "E, aos poucos, virou alguém de confiança.",
+      "label": "CADA CONTATO TEM UMA HISTÓRIA",
+      "contact": {
+        "name": "Seu Antônio",
+        "detail": "Eletricista da família",
+        "context": "Indicação da mãe · há muitos anos"
+      }
+    },
+    {
+      "image": "content/assets/familia-v2/03-geracoes.png",
+      "headline": "Guarde o contato. Cuide da história.",
+      "voiceover": "O DaFamília guarda o contato e a história que vem com ele.",
+      "label": "O CUIDADO CONTINUA"
+    },
+    {
+      "image": "content/assets/familia-v2/01-memorias.png",
+      "headline": "DaFamília. Confiança que fica perto.",
+      "voiceover": "DaFamília. Pra cuidar de quem sempre esteve por perto.",
+      "label": "CONHEÇA A DEMONSTRAÇÃO",
+      "cta": "www.dafamiliaa.com.br"
+    }
+  ],
+  "caption": "Tem contato que a gente não conhece pela internet. Conhece pela mãe, pela avó, por alguém que a família confia há anos. E junto com o número vem uma história.\n\nO DaFamília nasce para cuidar desses contatos e compartilhar essa confiança entre gerações. Conheça a demonstração no link da bio.\n\nQual contato acompanha a sua família há mais tempo?\n\nNova versão em preparação; cadastro ainda fechado.\n\n#DaFamilia #ContatosDeConfianca #Familia",
+  "voice_rate": "+0%",
+  "voice_pitch": "+0Hz",
+  "revision": "v3: no on-screen AI notices; conversational narration"
+}

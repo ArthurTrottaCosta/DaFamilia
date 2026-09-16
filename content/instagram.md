@@ -30,10 +30,15 @@ pessoas de confiança também fazem parte dessa rede.
 
 A versão v2 é uma montagem com fotografias ilustrativas geradas por IA, movimento
 suave, narração em português e música original. Não apresentá-la como filmagem,
-cliente real ou depoimento. Manter a identificação das cenas ilustrativas.
+cliente real ou depoimento.
+
+Revisão v3 pedida pelo usuário: remover avisos de IA sobre a peça e da legenda
+editorial; preservar procedência no manifesto interno. Usar voz
+pt-BR-ThalitaMultilingualNeural em ritmo normal e frases conversadas, sem a
+desaceleração artificial anterior. Essa revisão é a referência atual.
 
 A primeira versão deve permanecer no histórico; a direção v2 guia as próximas
-peças. Usar scripts/render-family-reel.py e briefings com scenes. O renderer
+peças, com os ajustes v3 de content/reel-03-familia.json. Usar scripts/render-family-reel.py e briefings com scenes. O renderer
 antigo de cartões pode apoiar explicações, mas não é o formato principal.
 
 ## Operação

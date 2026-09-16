@@ -1,5 +1,10 @@
 # Plano de lançamento — 16/09/2026
 
+Decisões posteriores: titular pessoa física; tem iPhone e não tem Mac. Plano
+de abertura e comparação entre PWA, contatos nativos, widget e CardDAV em
+`docs/ios-e-lancamento-2026-09-16.md`. Não condicionar o piloto web a widgets ou
+publicação nas lojas.
+
 ## O que está pronto no código
 
 Novo site, demonstração identificada, app responsivo, autenticação individual,

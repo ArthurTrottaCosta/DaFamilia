@@ -39,7 +39,6 @@ def overlay(scene,path):
         d.text((106,992),c['name'],font=font(37,True),fill=GREEN)
         d.text((106,1048),c['detail'],font=font(28),fill=GREEN)
         d.text((106,1100),c['context'],font=font(24),fill=GREEN)
-    d.text((76,1715),'Cenas ilustrativas com IA · Nova versão em preparação',font=font(21),fill=(224,228,222,255))
     im.save(path)
 def run(args):subprocess.run(args,check=True)
 def duration(path):return float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(path)],text=True).strip())
@@ -63,7 +62,11 @@ async def main():
     tracks=[]
     for i,s in enumerate(data['scenes']):
         voice=out/f'voice-{i+1}.mp3'
-        if not voice.exists():await edge_tts.Communicate(s['voiceover'],data['voice'],rate='-8%').save(str(voice))
+        voice_config={'voice':data['voice'],'rate':data.get('voice_rate','+0%'),'pitch':data.get('voice_pitch','+0Hz'),'text':s['voiceover']}
+        voice_meta=out/f'voice-{i+1}.json'
+        if not (voice.exists() and voice_meta.exists() and json.loads(voice_meta.read_text(encoding='utf-8'))==voice_config):
+            await edge_tts.Communicate(voice_config['text'],voice_config['voice'],rate=voice_config['rate'],pitch=voice_config['pitch']).save(str(voice))
+            voice_meta.write_text(json.dumps(voice_config,ensure_ascii=False,indent=2),encoding='utf-8')
         seconds=max(5.0,math.ceil((duration(voice)+1.0)*FPS)/FPS);frames=round(seconds*FPS)
         layer=out/f'type-{i+1}.png';overlay(s,layer)
         clip=out/f'scene-{i+1}.mp4'

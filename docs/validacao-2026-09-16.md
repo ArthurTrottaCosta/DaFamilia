@@ -25,8 +25,8 @@ origem desconhecida e confirmação inválida de exclusão.
 ## Prévia remota
 
 Deployment `dpl_2ZnCnxj7sG4gU8m4KxxF35oJGrTe`, estado READY.
-Site, `/demo` e `/app` abrem no navegador. Cadastro fechado confirmado; nenhuma
-URL/chave local enviada no build remoto. Console sem erros/avisos no teste.
+Site, `/demo` e `/app` abrem no navegador. Cadastro fechado confirmado; variáveis
+de backend vazias na compilação remota. Console sem erros/avisos no teste.
 CSP, proteção de enquadramento, no-sniff e política de referência conferidos
 na resposta real autenticada da preview. A página de autenticação da Vercel
 não foi confundida com a resposta do aplicativo.
